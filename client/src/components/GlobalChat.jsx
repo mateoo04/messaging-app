@@ -2,14 +2,17 @@ import { useEffect, useState } from 'react';
 import socket from '../utils/socket';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/authContext.jsx';
+import { toast } from 'react-toastify';
 
 export default function GlobalChat() {
   const { isAuthenticated } = useAuth();
 
   const [messages, setMessages] = useState([]);
-  const [input, setInput] = useState('');
+  const [messageText, setMessageText] = useState('');
 
   useEffect(() => {
+    socket.emit('join room', 'global-chat');
+
     socket.on('message', (message) => {
       setMessages((prev) => [...prev, message]);
 
@@ -19,10 +22,27 @@ export default function GlobalChat() {
     });
   }, []);
 
-  const sendMessage = () => {
-    if (input.trim()) {
-      socket.emit('message', input.trim());
-      setInput('');
+  const sendMessage = async () => {
+    if (messageText.trim()) {
+      try {
+        const response = await fetch('/api/chats/global-chat/new', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ text: messageText }),
+        });
+
+        if (!response.ok) throw new Error('Failed to validate credentials');
+
+        setMessages([
+          ...messages,
+          { text: messageText, sender: { displayName: 'You' } },
+        ]);
+        setMessageText('');
+      } catch {
+        toast.error('Failed to send the message');
+      }
     }
   };
 
@@ -31,7 +51,10 @@ export default function GlobalChat() {
       <h1>Chat</h1>
       <div>
         {messages.map((msg, index) => (
-          <p key={index}>{msg}</p>
+          <div key={`message-${index}`}>
+            <p key={`author-${index}`}>{msg.sender.displayName}</p>
+            <p key={`text-${index}`}>{msg.text}</p>
+          </div>
         ))}
       </div>
       {!isAuthenticated ? (
@@ -43,8 +66,8 @@ export default function GlobalChat() {
         ''
       )}
       <input
-        value={input}
-        onChange={(e) => setInput(e.target.value)}
+        value={messageText}
+        onChange={(e) => setMessageText(e.target.value)}
         placeholder='Type a message...'
       />
       <button onClick={sendMessage} disabled={!isAuthenticated}>

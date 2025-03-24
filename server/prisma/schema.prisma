@@ -18,4 +18,22 @@ model User{
   displayName String
   username String @unique
   password String 
+  sentMessages Message[]
+  chats Chat[]
+}
+
+model Chat{
+  id String @id @default(uuid())
+  members User[]
+  messages Message[]
+}
+
+model Message{
+  id String @id @default(uuid())
+  text String
+  time DateTime @default(now())
+  senderId String?
+  sender User? @relation(fields: [senderId], references: [id])
+  chatId String
+  chat Chat @relation(fields: [chatId], references: [id])
 }

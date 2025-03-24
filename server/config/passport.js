@@ -4,8 +4,18 @@ const { PrismaClient } = require('@prisma/client');
 
 const prisma = new PrismaClient();
 
+const cookieExtractor = (req) => {
+  let token = null;
+  if (req && req.cookies?.authToken?.expiresAt > new Date()) {
+    token = req.cookies.authToken.token;
+    token = token.replace('Bearer ', '');
+  }
+
+  return token;
+};
+
 const options = {
-  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+  jwtFromRequest: cookieExtractor,
   secretOrKey: process.env.SECRET,
 };
 

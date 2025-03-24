@@ -5,15 +5,19 @@ const path = require('node:path');
 const http = require('http');
 const { Server } = require('socket.io');
 const cookieParser = require('cookie-parser');
+const { passport } = require('./config/passport');
 
 const indexRouter = require('./routes/indexRouter');
 const socketHandler = require('./config/socketHandler');
+const { events, setUpSocketEvents } = require('./config/events');
 
 const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+
+app.use(passport.initialize());
 
 const server = http.createServer(app);
 const io = new Server(server, {
@@ -30,7 +34,9 @@ app.use(
     credentials: true,
   })
 );
+
 socketHandler(io);
+setUpSocketEvents(io);
 
 app.use('/api', indexRouter);
 
