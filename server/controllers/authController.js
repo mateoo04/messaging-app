@@ -37,7 +37,11 @@ async function signUp(req, res, next) {
 
     const tokenObj = issueJWT(user);
 
-    res.status(201).json(tokenObj);
+    res.cookie('authToken', tokenObj, {
+      httpOnly: true,
+    });
+
+    res.status(201).json({ message: 'Successful sign up' });
   } catch (err) {
     next(err);
   }
@@ -67,7 +71,11 @@ async function logIn(req, res, next) {
     if (match) {
       const tokenObj = issueJWT(user);
 
-      res.json(tokenObj);
+      res.cookie('authToken', tokenObj, {
+        httpOnly: true,
+      });
+
+      res.json({ message: 'Successful log in' });
     } else res.status(401).json('Invalid credentials');
   } catch (err) {
     next(err);
