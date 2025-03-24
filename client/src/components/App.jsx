@@ -1,4 +1,8 @@
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import {
+  createBrowserRouter,
+  Navigate,
+  RouterProvider,
+} from 'react-router-dom';
 import GlobalChat from './GlobalChat';
 import { Slide, ToastContainer } from 'react-toastify';
 import LogIn from './LogIn';
@@ -7,6 +11,7 @@ import NotFound from './NotFound';
 import { AuthProvider } from '../context/authContext.jsx';
 
 const router = createBrowserRouter([
+  { path: '/', element: <Navigate to='/chat' /> },
   { path: '/chat', element: <GlobalChat /> },
   {
     path: '/log-in',

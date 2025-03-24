@@ -7,7 +7,9 @@ const setUpSocketEvents = (io) => {
   ioInstance = io;
 
   events.on('newMessage', (message) => {
-    io.emit('message', message);
+    if (!ioInstance) return;
+    console.log('Hello');
+    io.to(message.chatId).emit('message', message);
   });
 };
 

@@ -16,14 +16,14 @@ export function AuthProvider({ children }) {
           credentials: 'include',
         });
 
+        if (response.status === 401) return;
         if (!response.ok) throw new Error('Failed to validate credentials');
 
         const json = await response.json();
-        console.log(json);
 
         if (json.success) setIsAuthenticated(true);
-      } catch (err) {
-        console.log('Error validating credentials: ' + err);
+      } catch {
+        console.log('Error validating credentials');
       }
     };
 

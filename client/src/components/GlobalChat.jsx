@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import socket from '../utils/socket';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/authContext.jsx';
@@ -9,17 +9,37 @@ export default function GlobalChat() {
 
   const [messages, setMessages] = useState([]);
   const [messageText, setMessageText] = useState('');
+  const messagesEndRef = useRef(null);
 
   useEffect(() => {
     socket.emit('join room', 'global-chat');
 
     socket.on('message', (message) => {
       setMessages((prev) => [...prev, message]);
-
+      console.log('I was called');
       return () => {
         socket.off('message');
       };
     });
+
+    const fetchExistingMessages = async () => {
+      try {
+        const response = await fetch('/api/chats/global-chat', {
+          method: 'GET',
+          credentials: 'include',
+        });
+
+        if (!response.ok) throw new Error('Error fetching messages');
+
+        const json = await response.json();
+
+        setMessages((prev) => [...prev, ...json.messages]);
+      } catch {
+        toast.error('Error fetching messages');
+      }
+    };
+
+    fetchExistingMessages();
   }, []);
 
   const sendMessage = async () => {
@@ -35,8 +55,8 @@ export default function GlobalChat() {
 
         if (!response.ok) throw new Error('Failed to validate credentials');
 
-        setMessages([
-          ...messages,
+        setMessages((prev) => [
+          ...prev,
           { text: messageText, sender: { displayName: 'You' } },
         ]);
         setMessageText('');
@@ -46,16 +66,21 @@ export default function GlobalChat() {
     }
   };
 
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'instant' });
+  }, [messages]);
+
   return (
     <>
       <h1>Chat</h1>
-      <div>
+      <div className='overflow-scroll messages'>
         {messages.map((msg, index) => (
           <div key={`message-${index}`}>
-            <p key={`author-${index}`}>{msg.sender.displayName}</p>
+            <p key={`author-${index}`}>{msg.sender?.displayName}</p>
             <p key={`text-${index}`}>{msg.text}</p>
           </div>
         ))}
+        <div ref={messagesEndRef} />
       </div>
       {!isAuthenticated ? (
         <p>

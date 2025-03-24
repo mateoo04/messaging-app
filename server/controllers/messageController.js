@@ -3,6 +3,40 @@ const { events } = require('../config/events');
 
 const prisma = new PrismaClient();
 
+async function getChat(req, res, next) {
+  try {
+    if (req.params.chatId != 'global-chat')
+      passport.authenticate('jwt', { session: false });
+
+    const chat = await prisma.chat.findUnique({
+      where: {
+        id: req.params.chatId,
+      },
+      include: {
+        messages: {
+          orderBy: {
+            time: 'asc',
+          },
+          include: {
+            sender: {
+              select: {
+                id: true,
+                displayName: true,
+                username: true,
+              },
+            },
+          },
+        },
+        members: true,
+      },
+    });
+
+    return res.json(chat);
+  } catch (err) {
+    next(err);
+  }
+}
+
 async function processNewMessage(req, res, next) {
   try {
     if (!req.body.text.length)
@@ -35,4 +69,4 @@ async function processNewMessage(req, res, next) {
   }
 }
 
-module.exports = { processNewMessage };
+module.exports = { processNewMessage, getChat };
