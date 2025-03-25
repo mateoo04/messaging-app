@@ -40,8 +40,10 @@ export default function LogIn() {
         setError('server', { message: 'Invalid credentials' });
       } else if (!response.ok) throw new Error('Failed to log in');
       else {
-        logIn();
-        navigate('/chat');
+        const json = await response.json();
+
+        logIn(json.user);
+        navigate('/');
       }
     } catch {
       toast.error('Failed to log in');

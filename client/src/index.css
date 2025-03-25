@@ -5,3 +5,7 @@ body {
 .messages {
   max-height: 80vh;
 }
+
+aside {
+  width: 230px;
+}

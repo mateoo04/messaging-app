@@ -41,7 +41,14 @@ async function signUp(req, res, next) {
       httpOnly: true,
     });
 
-    res.status(201).json({ message: 'Successful sign up' });
+    res.status(201).json({
+      success: true,
+      user: {
+        displayName: user.displayName,
+        username: user.username,
+        id: user.id,
+      },
+    });
   } catch (err) {
     next(err);
   }
@@ -75,7 +82,14 @@ async function logIn(req, res, next) {
         httpOnly: true,
       });
 
-      res.json({ message: 'Successful log in' });
+      res.json({
+        success: true,
+        user: {
+          displayName: user.displayName,
+          username: user.username,
+          id: user.id,
+        },
+      });
     } else res.status(401).json('Invalid credentials');
   } catch (err) {
     next(err);

@@ -6,10 +6,13 @@ let ioInstance;
 const setUpSocketEvents = (io) => {
   ioInstance = io;
 
-  events.on('newMessage', (message) => {
+  events.on('newMessage', ({ message, senderSocketId }) => {
     if (!ioInstance) return;
-    console.log('Hello');
-    io.to(message.chatId).emit('message', message);
+    console.log('Socket id:' + senderSocketId);
+    ioInstance
+      .to(message.chatId)
+      .except(senderSocketId)
+      .emit('message', message);
   });
 };
 

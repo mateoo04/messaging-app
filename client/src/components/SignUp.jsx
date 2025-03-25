@@ -49,8 +49,10 @@ export default function SignUp() {
 
       if (!response.ok) throw new Error('Failed to sign up');
 
-      logIn();
-      navigate('/chat');
+      const json = await response.json();
+      logIn(json.user);
+
+      navigate('/');
     } catch {
       toast.error('Failed to sign up');
     }

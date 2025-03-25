@@ -3,7 +3,7 @@ import {
   Navigate,
   RouterProvider,
 } from 'react-router-dom';
-import GlobalChat from './GlobalChat';
+import Chat from './Chat';
 import { Slide, ToastContainer } from 'react-toastify';
 import LogIn from './LogIn';
 import SignUp from './SignUp';
@@ -11,8 +11,8 @@ import NotFound from './NotFound';
 import { AuthProvider } from '../context/authContext.jsx';
 
 const router = createBrowserRouter([
-  { path: '/', element: <Navigate to='/chat' /> },
-  { path: '/chat', element: <GlobalChat /> },
+  { path: '/', element: <Navigate to='/chat/global-chat' /> },
+  { path: '/chat/:recipient', element: <Chat /> },
   {
     path: '/log-in',
     element: <LogIn />,

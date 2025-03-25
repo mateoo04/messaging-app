@@ -1,11 +1,13 @@
 const express = require('express');
 const authRouter = require('./authRouter');
-const messageRouter = require('./messageRouter');
+const chatRouter = require('./chatRouter');
+const usersRouter = require('./usersRouter');
 
 const indexRouter = express();
 
 indexRouter.use('/auth', authRouter);
-indexRouter.use('/chats', messageRouter);
+indexRouter.use('/users', usersRouter);
+indexRouter.use('/chats', chatRouter);
 
 indexRouter.get('/', (req, res) =>
   res.json({ message: 'Welcome to the Messaging App API!' })
