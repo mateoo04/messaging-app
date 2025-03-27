@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import ChatList from './ChatList';
 import NewChatSearch from './NewChatSearch';
+import ChatList from './ChatList';
 
 export default function Sidebar() {
   const [isSearching, setIsSearching] = useState(false);

@@ -23,6 +23,18 @@ async function getAllChats(req, res, next) {
           },
         ],
       },
+      include: {
+        members: true,
+        messages: {
+          orderBy: {
+            time: 'desc',
+          },
+          take: 1,
+          include: {
+            sender: true,
+          },
+        },
+      },
     });
     return res.json({ chats });
   } catch (err) {
@@ -30,7 +42,7 @@ async function getAllChats(req, res, next) {
   }
 }
 
-async function getChat(req, res, next) {
+async function getChatById(req, res, next) {
   try {
     if (req.params.chatId != 'global-chat')
       passport.authenticate('jwt', { session: false });
@@ -58,18 +70,66 @@ async function getChat(req, res, next) {
       },
     });
 
+    if (!chat) return res.status(404).json({ message: 'Chat not found' });
+
     return res.json(chat);
   } catch (err) {
     next(err);
   }
 }
 
-async function getChatId(ids) {
+async function getPrivateChatByMembers(req, res, next) {
+  try {
+    const chat = await prisma.chat.findFirst({
+      where: {
+        AND: [
+          { members: { some: { id: req.user.id } } },
+          { members: { some: { id: req.query.memberId } } },
+          {
+            members: {
+              every: { id: { in: [req.user.id, req.query.memberId] } },
+            },
+          },
+        ],
+      },
+      include: {
+        messages: {
+          orderBy: {
+            time: 'asc',
+          },
+          include: {
+            sender: {
+              select: {
+                id: true,
+                displayName: true,
+                username: true,
+              },
+            },
+          },
+        },
+        members: true,
+      },
+    });
+
+    if (!chat) return res.status(404).json({ message: 'Chat not found' });
+
+    return res.json(chat);
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function getPrivateChatId(ids) {
   const exists = await prisma.chat.findFirst({
     where: {
       AND: [
         { members: { some: { id: ids[0] } } },
         { members: { some: { id: ids[1] } } },
+        {
+          members: {
+            every: { id: { in: ids } },
+          },
+        },
       ],
     },
   });
@@ -87,42 +147,62 @@ async function getChatId(ids) {
   } else return exists.id;
 }
 
-async function processNewMessage(req, res, next) {
+async function processPrivateMessage(req, res, next) {
   try {
-    let chatId;
-    if (!req.params?.recipientId)
-      return res.status(401).json({ message: 'Recipient not provided' });
-    else if (req.params.recipientId == 'global-chat')
-      chatId = req.params.recipientId;
-    else chatId = getChatId([req.user.id, req.params.recipientId]);
+    if (!req.params.recipientId)
+      return res.status(400).json({ message: 'Recipient id not provided' });
 
-    if (!req.body.text.length)
-      return res
-        .status(401)
-        .json({ message: 'No text attached to the message' });
+    const chatId = await getPrivateChatId([
+      req.user.id,
+      req.params.recipientId,
+    ]);
 
-    const message = await prisma.message.create({
-      data: {
-        text: req.body.text,
-        senderId: req.user.id,
-        chatId: chatId,
-      },
-      include: {
-        sender: {
-          select: {
-            id: true,
-            displayName: true,
-            username: true,
-          },
-        },
-      },
-    });
-    events.emit('newMessage', { message, senderSocketId: req.body.socketId });
-
-    res.status(201).json(message);
+    processNewMessage(req, res, chatId);
   } catch (err) {
     next(err);
   }
 }
 
-module.exports = { processNewMessage, getChat, getAllChats };
+async function processGroupMessage(req, res, next) {
+  try {
+    if (!req.params.chatId)
+      return res.status(400).json({ message: 'Chat id not provided' });
+
+    processNewMessage(req, res, req.params.chatId);
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function processNewMessage(req, res, chatId) {
+  if (!req.body.text.length)
+    return res.status(400).json({ message: 'No text attached to the message' });
+
+  const message = await prisma.message.create({
+    data: {
+      text: req.body.text,
+      senderId: req.user.id,
+      chatId: chatId,
+    },
+    include: {
+      sender: {
+        select: {
+          id: true,
+          displayName: true,
+          username: true,
+        },
+      },
+    },
+  });
+  events.emit('newMessage', { message, senderSocketId: req.body.socketId });
+
+  return res.status(201).json(message);
+}
+
+module.exports = {
+  processPrivateMessage,
+  processGroupMessage,
+  getChatById,
+  getAllChats,
+  getPrivateChatByMembers,
+};

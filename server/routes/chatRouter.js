@@ -1,9 +1,10 @@
 const { Router } = require('express');
 const {
-  processNewMessage,
-  getChat,
+  getChatById,
   getAllChats,
-  createChat,
+  getPrivateChatByMembers,
+  processPrivateMessage,
+  processGroupMessage,
 } = require('../controllers/chatController');
 const { passport } = require('../config/passport');
 
@@ -15,12 +16,24 @@ chatRouter.get(
   getAllChats
 );
 
-chatRouter.get('/:chatId', getChat);
+chatRouter.get('/groups/:chatId', getChatById);
+
+chatRouter.get(
+  '/private',
+  passport.authenticate('jwt', { session: false }),
+  getPrivateChatByMembers
+);
 
 chatRouter.post(
-  '/:recipientId/message',
+  '/private/message/:recipientId',
   passport.authenticate('jwt', { session: false }),
-  processNewMessage
+  processPrivateMessage
+);
+
+chatRouter.post(
+  '/groups/message/:chatId',
+  passport.authenticate('jwt', { session: false }),
+  processGroupMessage
 );
 
 module.exports = chatRouter;

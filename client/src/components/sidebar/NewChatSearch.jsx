@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
 export default function NewChatSearch({ stopUserSearch }) {
@@ -42,10 +43,12 @@ export default function NewChatSearch({ stopUserSearch }) {
         <ul>
           {users.map((user) => {
             return (
-              <li>
-                <p className='mb-0'>{user.displayName}</p>
-                <p className='text-secondary'>{user.username}</p>
-              </li>
+              <Link to={`/chats/private/${user.id}`}>
+                <li>
+                  <p className='mb-0'>{user.displayName}</p>
+                  <p className='text-secondary'>{user.username}</p>
+                </li>
+              </Link>
             );
           })}
         </ul>
