@@ -10,7 +10,6 @@ export default function PrivateChat() {
   const { addSentMessage } = useChats();
   const { getUser } = useAuth();
   const { recipientId } = useParams();
-  const { search } = useLocation();
 
   const [chatId, setChatId] = useState('');
   const [messages, setMessages] = useState([]);
@@ -28,11 +27,17 @@ export default function PrivateChat() {
         );
 
         if (response.status == 404) {
-          const queryParams = new URLSearchParams(search);
-          setRecipient({
-            displayName: queryParams.displayName,
-            username: queryParams.username,
+          const recipientResponse = await fetch(`/api/users/${recipientId}`, {
+            method: 'GET',
+            credentials: 'include',
           });
+
+          if (!recipientResponse.ok) throw new Error('Error fetching the user');
+
+          const recipientJson = await recipientResponse.json();
+          setRecipient(recipientJson);
+          setMessages([]);
+
           return;
         }
         if (!response.ok) throw new Error('Error fetching messages');
@@ -81,10 +86,7 @@ export default function PrivateChat() {
         const json = await response.json();
         addSentMessage(json);
 
-        setMessages((prev) => [
-          ...prev,
-          { text: messageText, sender: { displayName: 'You' } },
-        ]);
+        setMessages((prev) => [...prev, json]);
         if (!chatId) setChatId(json.chatId);
       } catch {
         toast.error('Failed to send the message');

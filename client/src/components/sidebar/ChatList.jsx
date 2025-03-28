@@ -32,7 +32,7 @@ export default function ChatList({ startUserSearch }) {
             (member) => member.id != getUser().id
           );
           const lastMessage = chat.messages?.at(0);
-          const sender = lastMessage.sender;
+          const sender = lastMessage?.sender;
 
           return (
             <li className='nav-item' key={chat.id + 'link'}>

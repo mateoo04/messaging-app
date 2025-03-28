@@ -55,10 +55,9 @@ export default function GroupChat() {
 
         if (!response.ok) throw new Error('Failed to send the message');
 
-        setMessages((prev) => [
-          ...prev,
-          { text: messageText, sender: { displayName: 'You' } },
-        ]);
+        const json = await response.json();
+
+        setMessages((prev) => [...prev, json]);
       } catch {
         toast.error('Failed to send the message');
       }

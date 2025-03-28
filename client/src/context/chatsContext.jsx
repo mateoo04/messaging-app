@@ -37,6 +37,8 @@ export function ChatsProvider({ children }) {
       if (!chats.some((chat) => chat.id === newChat.id))
         setChats([...chats, newChat]);
 
+      console.log('new private chat: ' + newChat);
+
       return () => {
         socket.off('newPrivateChat');
       };
