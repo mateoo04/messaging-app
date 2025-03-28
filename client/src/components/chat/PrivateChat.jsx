@@ -5,6 +5,7 @@ import Chat from './Chat.jsx';
 import { toast } from 'react-toastify';
 import { useChats } from '../../context/chatsContext.jsx';
 import { useAuth } from '../../context/authContext.jsx';
+import supabase from '../../utils/supabase.js';
 
 export default function PrivateChat() {
   const { addSentMessage } = useChats();
@@ -68,9 +69,31 @@ export default function PrivateChat() {
     });
   }, [chatId, recipientId, authenticatedUser]);
 
-  const sendMessage = async (messageText) => {
-    if (messageText.trim()) {
+  const sendMessage = async (messageText, file) => {
+    if (messageText.trim() || file) {
       try {
+        let photoUrl;
+
+        if (file) {
+          const filePath = `chat-photos/${authenticatedUser.id}-${Date.now()}`;
+
+          const { data, error } = await supabase.storage
+            .from('messaging-app')
+            .upload(filePath, file, {
+              upsert: true,
+            });
+
+          if (error) {
+            throw new Error(error);
+          }
+
+          const { data: profilePhotoUrlData } = supabase.storage
+            .from('messaging-app')
+            .getPublicUrl(data.path);
+
+          photoUrl = profilePhotoUrlData.publicUrl;
+        }
+
         const response = await fetch(
           `/api/chats/private/message/${recipientId}`,
           {
@@ -79,7 +102,11 @@ export default function PrivateChat() {
               'Content-Type': 'application/json',
             },
             credentials: 'include',
-            body: JSON.stringify({ text: messageText, socketId: socket.id }),
+            body: JSON.stringify({
+              text: messageText,
+              socketId: socket.id,
+              imageUrl: photoUrl,
+            }),
           }
         );
 

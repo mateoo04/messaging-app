@@ -79,7 +79,7 @@ export default function ChatList({ startUserSearch }) {
                       sender?.id === authenticatedUser.id
                         ? 'You'
                         : sender?.displayName
-                    }: ${lastMessage?.text}`}
+                    }: ${lastMessage?.text ? lastMessage?.text : 'Image sent'}`}
                   </p>
                 </div>
               </Link>

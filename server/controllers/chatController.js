@@ -153,12 +153,13 @@ async function getPrivateChatId(userId, recipientId) {
 }
 
 async function saveMessage(req, res, chatId) {
-  if (!req.body.text.length)
-    return res.status(400).json({ message: 'No text attached to the message' });
+  if (!req.body.text.length && !req.body.imageUrl)
+    return res.status(400).json({ message: 'Message empty' });
 
   const message = await prisma.message.create({
     data: {
-      text: req.body.text,
+      text: req.body.text || undefined,
+      imageUrl: req.body.imageUrl || undefined,
       senderId: req.user.id,
       chatId: chatId,
     },

@@ -41,3 +41,14 @@ p {
   height: 80px;
   @include profile-photo-default;
 }
+
+.back-arrow {
+  width: 30px;
+}
+
+.back-arrow:hover,
+.btn:hover,
+input[type='submit']:hover {
+  cursor: pointer;
+  opacity: 0.85;
+}

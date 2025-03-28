@@ -3,13 +3,15 @@ import personSvg from '../assets/icons/person-circle.svg';
 import supabase from '../utils/supabase';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
+import arrowLeftSvg from '../assets/icons/arrow-left.svg';
+import { Link } from 'react-router-dom';
 
 export default function EditProfile() {
   const { authenticatedUser, setAuthenticatedUser } = useAuth();
   const [file, setFile] = useState();
   const [displayName, setDisplayName] = useState(authenticatedUser.displayName);
 
-  const saveProfilePhoto = async (event) => {
+  const saveChanges = async (event) => {
     event.preventDefault();
 
     if (!file && !displayName) {
@@ -69,7 +71,12 @@ export default function EditProfile() {
 
   return (
     <main className='container'>
-      <h1 className='mt-3 mb-3'>Your Profile</h1>
+      <div className='d-flex gap-3 align-items-center'>
+        <Link to='/'>
+          <img className='back-arrow' src={arrowLeftSvg} alt='' />
+        </Link>
+        <h1 className='mt-3 mb-3'>Your Profile</h1>
+      </div>
       <div className='d-flex gap-3 align-items-center mb-3'>
         {' '}
         <img
@@ -80,7 +87,7 @@ export default function EditProfile() {
         <h2>@{authenticatedUser.username}</h2>
       </div>
       <form
-        onSubmit={saveProfilePhoto}
+        onSubmit={saveChanges}
         className='d-flex flex-column border p-3 rounded-3'
       >
         <legend>Edit profile</legend>

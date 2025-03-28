@@ -6,6 +6,7 @@ import sendIcon from '../../assets/icons/send.svg';
 import { format } from 'date-fns';
 import personSvg from '../../assets/icons/person-circle.svg';
 import globeSvg from '../../assets/icons/globe.svg';
+import imageSvg from '../../assets/icons/image.svg';
 
 export default function Chat({
   messages,
@@ -18,6 +19,8 @@ export default function Chat({
   const { isAuthenticated, authenticatedUser } = useAuth();
 
   const [messageText, setMessageText] = useState('');
+  const [file, setFile] = useState(null);
+  const [isAttachingFile, setIsAttachingFile] = useState(false);
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
@@ -64,6 +67,12 @@ export default function Chat({
                       : msg.sender.displayName}
                   </p>
                 )}
+                {msg.imageUrl && (
+                  <img
+                    className='message-image rounded-3 mt-2 mb-2'
+                    src={msg.imageUrl}
+                  />
+                )}
                 <p key={`text-${index}`} className='message-text'>
                   {msg.text}
                 </p>
@@ -83,24 +92,46 @@ export default function Chat({
         ) : (
           ''
         )}
-        <div className='d-flex p-2 align-items-center text-input-container'>
-          <textarea
-            value={messageText}
-            onChange={(e) => setMessageText(e.target.value)}
-            placeholder='Type a message...'
-            className='form-control border-0 bg-transparent'
+        <form
+          onSubmit={async (e) => {
+            e.preventDefault();
+            await sendMessage(messageText, isAttachingFile ? file : null);
+            setMessageText('');
+            setIsAttachingFile(false);
+          }}
+          className='d-flex flex-column p-2 text-input-container'
+        >
+          <input
+            id='file-input'
+            type='file'
+            name='file'
+            className='form-control mb-3'
+            onChange={(e) => setFile(e.target.files[0])}
+            hidden={!isAttachingFile}
           />
-          <button
-            onClick={async () => {
-              await sendMessage(messageText);
-              setMessageText('');
-            }}
-            disabled={!isAuthenticated}
-            className='send-button align bg-primary'
-          >
-            <img src={sendIcon} className='send-icon' alt='' />
-          </button>
-        </div>
+          <div className='d-flex  align-items-center'>
+            <textarea
+              value={messageText}
+              onChange={(e) => setMessageText(e.target.value)}
+              placeholder='Type a message...'
+              className='form-control border-0 bg-transparent'
+            />
+            <button
+              type='button'
+              onClick={() => setIsAttachingFile(!isAttachingFile)}
+              className='align message-input-button attach-image-button'
+            >
+              <img src={imageSvg} alt='' />
+            </button>
+            <button
+              type='submit'
+              disabled={!isAuthenticated}
+              className='send-button align bg-primary'
+            >
+              <img src={sendIcon} className='send-icon' alt='' />
+            </button>
+          </div>
+        </form>
       </main>
     </div>
   );
