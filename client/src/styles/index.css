@@ -1,0 +1,72 @@
+html,
+body,
+#root,
+main {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+}
+
+.messages {
+  max-height: 80vh;
+  overflow-x: hidden;
+  overflow-y: scroll;
+}
+
+aside {
+  width: 300px;
+}
+
+textarea,
+textarea:active,
+textarea:hover,
+textarea:focus {
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+.send-button {
+  border-radius: 50%;
+  padding: 6px;
+  border: 0;
+}
+
+.send-icon {
+  background-color: transparent;
+  width: 24px;
+  padding-right: 2px;
+}
+
+.text-input-container {
+  background-color: #e9e9e9;
+  border-radius: 16px;
+  margin: 6px 12px 12px 12px;
+}
+
+.message-sender {
+  font-weight: 500;
+}
+
+.message-text {
+  max-width: 30ch;
+  overflow-wrap: break-word;
+  white-space: normal;
+  word-wrap: break-word;
+}
+
+.last-message {
+  overflow: hidden;
+  max-width: 25ch;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.user-message-container .time {
+  order: -1;
+}
+
+.time {
+  font-size: 0.79em;
+}

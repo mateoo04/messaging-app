@@ -30,7 +30,10 @@ export default function NewChatSearch({ stopUserSearch }) {
   return (
     <>
       <h1 className='pb-3'>New Chat</h1>
-      <button className='btn border mb-2' onClick={stopUserSearch}>
+      <button
+        className='btn border mb-2 bg-primary text-white rounded-5'
+        onClick={stopUserSearch}
+      >
         RETURN TO CHATS
       </button>
       <input
@@ -38,14 +41,18 @@ export default function NewChatSearch({ stopUserSearch }) {
         id='userSearch'
         name='userSearch'
         onChange={(e) => setSearch(e.target.value)}
+        className='form-control mb-3'
       />
       <div>
         <ul>
           {users.map((user) => {
             return (
-              <Link to={`/chats/private/${user.id}`}>
+              <Link
+                to={`/chats/private/${user.id}`}
+                className='text-decoration-none'
+              >
                 <li>
-                  <p className='mb-0'>{user.displayName}</p>
+                  <p className='mb-0 fw-bold'>{user.displayName}</p>
                   <p className='text-secondary'>{user.username}</p>
                 </li>
               </Link>

@@ -65,5 +65,13 @@ export default function GroupChat() {
     }
   };
 
-  return <Chat messages={messages} sendMessage={sendMessage}></Chat>;
+  return (
+    <Chat
+      messages={messages}
+      sendMessage={sendMessage}
+      chatName={'Global Chat'}
+      chatDescription={'Members: Everyone'}
+      isGroup={true}
+    ></Chat>
+  );
 }

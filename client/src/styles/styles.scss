@@ -1,1 +1,20 @@
+$primary: #2b476e;
 @import '~bootstrap/scss/bootstrap';
+
+.others-message {
+  background-color: $primary;
+  color: white;
+}
+
+.users-message {
+  background-color: #e9e9e9;
+  color: black;
+}
+
+.mw-80 {
+  max-width: 80%;
+}
+
+p {
+  margin-bottom: 0;
+}

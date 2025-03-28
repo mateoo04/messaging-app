@@ -1,16 +1,20 @@
 import { useEffect, useState } from 'react';
 import socket from '../../utils/socket.js';
-import { useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import Chat from './Chat.jsx';
 import { toast } from 'react-toastify';
 import { useChats } from '../../context/chatsContext.jsx';
+import { useAuth } from '../../context/authContext.jsx';
 
 export default function PrivateChat() {
   const { addSentMessage } = useChats();
+  const { getUser } = useAuth();
   const { recipientId } = useParams();
+  const { search } = useLocation();
 
   const [chatId, setChatId] = useState('');
   const [messages, setMessages] = useState([]);
+  const [recipient, setRecipient] = useState({});
 
   useEffect(() => {
     const fetchExistingMessages = async () => {
@@ -23,13 +27,21 @@ export default function PrivateChat() {
           }
         );
 
-        if (response.status == 404) return;
+        if (response.status == 404) {
+          const queryParams = new URLSearchParams(search);
+          setRecipient({
+            displayName: queryParams.displayName,
+            username: queryParams.username,
+          });
+          return;
+        }
         if (!response.ok) throw new Error('Error fetching messages');
 
         const json = await response.json();
 
         setChatId(() => json.id);
         setMessages(json.messages);
+        setRecipient(json.members.find((member) => member.id !== getUser().id));
       } catch {
         toast.error('Error fetching messages');
       }
@@ -47,7 +59,7 @@ export default function PrivateChat() {
         socket.off('message');
       };
     });
-  }, [chatId, recipientId]);
+  }, [chatId, recipientId, getUser]);
 
   const sendMessage = async (messageText) => {
     if (messageText.trim()) {
@@ -80,5 +92,12 @@ export default function PrivateChat() {
     }
   };
 
-  return <Chat messages={messages} sendMessage={sendMessage}></Chat>;
+  return (
+    <Chat
+      messages={messages}
+      sendMessage={sendMessage}
+      chatName={recipient.displayName}
+      chatDescription={recipient.username}
+    ></Chat>
+  );
 }

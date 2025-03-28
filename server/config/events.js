@@ -8,11 +8,17 @@ const setUpSocketEvents = (io) => {
 
   events.on('newMessage', ({ message, senderSocketId }) => {
     if (!ioInstance) return;
-    console.log('Socket id:' + senderSocketId);
+
     ioInstance
       .to(message.chatId)
       .except(senderSocketId)
       .emit('message', message);
+  });
+
+  events.on('newPrivateChat', ({ userId, chat }) => {
+    if (!ioInstance) return;
+
+    ioInstance.to(`events-${userId}`).emit('newPrivateChat', chat);
   });
 };
 

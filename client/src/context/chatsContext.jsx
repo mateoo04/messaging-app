@@ -6,7 +6,7 @@ import { useAuth } from './authContext';
 const ChatsContext = createContext();
 
 export function ChatsProvider({ children }) {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, getUser } = useAuth();
   const [chats, setChats] = useState([]);
 
   useEffect(() => {
@@ -27,8 +27,21 @@ export function ChatsProvider({ children }) {
       }
     };
 
-    if (isAuthenticated) fetchChats();
-  }, [isAuthenticated]);
+    if (isAuthenticated && !chats.length) fetchChats();
+  }, [isAuthenticated, chats.length]);
+
+  useEffect(() => {
+    socket.emit('join room', `events-${getUser().id}`);
+
+    socket.on('newPrivateChat', (newChat) => {
+      if (!chats.some((chat) => chat.id === newChat.id))
+        setChats([...chats, newChat]);
+
+      return () => {
+        socket.off('newPrivateChat');
+      };
+    });
+  }, [chats, getUser]);
 
   useEffect(() => {
     if (chats.length > 0)
@@ -45,6 +58,10 @@ export function ChatsProvider({ children }) {
           else return chat;
         })
       );
+
+      return () => {
+        socket.off('message');
+      };
     });
   }, [chats]);
 

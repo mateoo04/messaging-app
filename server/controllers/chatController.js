@@ -119,15 +119,15 @@ async function getPrivateChatByMembers(req, res, next) {
   }
 }
 
-async function getPrivateChatId(ids) {
+async function getPrivateChatId(userId, recipientId) {
   const exists = await prisma.chat.findFirst({
     where: {
       AND: [
-        { members: { some: { id: ids[0] } } },
-        { members: { some: { id: ids[1] } } },
+        { members: { some: { id: userId } } },
+        { members: { some: { id: recipientId } } },
         {
           members: {
-            every: { id: { in: ids } },
+            every: { id: { in: [userId, recipientId] } },
           },
         },
       ],
@@ -138,10 +138,12 @@ async function getPrivateChatId(ids) {
     const chat = await prisma.chat.create({
       data: {
         members: {
-          connect: ids.map((id) => ({ id })),
+          connect: [{ id: userId }, { id: recipientId }],
         },
       },
     });
+
+    events.emit('newPrivateChat', { userId, chat });
 
     return chat.id;
   } else return exists.id;
@@ -152,10 +154,7 @@ async function processPrivateMessage(req, res, next) {
     if (!req.params.recipientId)
       return res.status(400).json({ message: 'Recipient id not provided' });
 
-    const chatId = await getPrivateChatId([
-      req.user.id,
-      req.params.recipientId,
-    ]);
+    const chatId = await getPrivateChatId(req.user.id, req.params.recipientId);
 
     processNewMessage(req, res, chatId);
   } catch (err) {
