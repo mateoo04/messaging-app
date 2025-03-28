@@ -143,37 +143,11 @@ async function getPrivateChatId(userId, recipientId) {
       },
     });
 
-    events.emit('newPrivateChat', { userId, chat });
-
-    return chat.id;
-  } else return exists.id;
+    return { isNewChat: true, chatId: chat.id };
+  } else return { isNewChat: false, chatId: exists.id };
 }
 
-async function processPrivateMessage(req, res, next) {
-  try {
-    if (!req.params.recipientId)
-      return res.status(400).json({ message: 'Recipient id not provided' });
-
-    const chatId = await getPrivateChatId(req.user.id, req.params.recipientId);
-
-    processNewMessage(req, res, chatId);
-  } catch (err) {
-    next(err);
-  }
-}
-
-async function processGroupMessage(req, res, next) {
-  try {
-    if (!req.params.chatId)
-      return res.status(400).json({ message: 'Chat id not provided' });
-
-    processNewMessage(req, res, req.params.chatId);
-  } catch (err) {
-    next(err);
-  }
-}
-
-async function processNewMessage(req, res, chatId) {
+async function saveMessage(req, res, chatId) {
   if (!req.body.text.length)
     return res.status(400).json({ message: 'No text attached to the message' });
 
@@ -191,11 +165,84 @@ async function processNewMessage(req, res, chatId) {
           username: true,
         },
       },
+      chat: {
+        include: {
+          members: true,
+          messages: {
+            orderBy: {
+              time: 'desc',
+            },
+            take: 1,
+            include: {
+              sender: true,
+            },
+          },
+        },
+      },
     },
   });
-  events.emit('newMessage', { message, senderSocketId: req.body.socketId });
 
-  return res.status(201).json(message);
+  return message;
+}
+
+async function processPrivateMessage(req, res, next) {
+  try {
+    if (!req.params.recipientId)
+      return res.status(400).json({ message: 'Recipient id not provided' });
+
+    const { isNewChat, chatId } = await getPrivateChatId(
+      req.user.id,
+      req.params.recipientId
+    );
+
+    if (isNewChat) {
+      const message = await saveMessage(req, res, chatId);
+
+      const chat = await prisma.chat.findUnique({
+        where: {
+          id: message.chatId,
+        },
+        include: {
+          members: true,
+          messages: {
+            include: {
+              sender: true,
+            },
+          },
+        },
+      });
+
+      events.emit('newPrivateChat', {
+        recipientId: req.params.recipientId,
+        chat,
+      });
+
+      return res.status(201).json(message);
+    } else {
+      const message = await saveMessage(req, res, chatId);
+
+      events.emit('newMessage', { message, senderSocketId: req.body.socketId });
+
+      return res.status(201).json(message);
+    }
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function processGroupMessage(req, res, next) {
+  try {
+    if (!req.params.chatId)
+      return res.status(400).json({ message: 'Chat id not provided' });
+
+    const message = await saveMessage(req, res, req.params.chatId);
+
+    events.emit('newMessage', { message, senderSocketId: req.body.socketId });
+
+    return res.status(201).json(message);
+  } catch (err) {
+    next(err);
+  }
 }
 
 module.exports = {

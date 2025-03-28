@@ -16,6 +16,7 @@ datasource db {
 model User{
   id String @id @default(uuid())
   displayName String
+  profilePhotoUrl String?
   username String @unique
   password String 
   sentMessages Message[]
@@ -30,7 +31,8 @@ model Chat{
 
 model Message{
   id String @id @default(uuid())
-  text String
+  text String?
+  imageUrl String?
   time DateTime @default(now())
   senderId String?
   sender User? @relation(fields: [senderId], references: [id])

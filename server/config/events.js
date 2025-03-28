@@ -15,10 +15,12 @@ const setUpSocketEvents = (io) => {
       .emit('message', message);
   });
 
-  events.on('newPrivateChat', ({ userId, chat }) => {
+  events.on('newPrivateChat', ({ recipientId, chat }) => {
     if (!ioInstance) return;
 
-    ioInstance.to(`events-${userId}`).emit('newPrivateChat', chat);
+    console.log(`emitting new chat event to events-${recipientId}`);
+
+    ioInstance.to(`events-${recipientId}`).emit('newPrivateChat', chat);
   });
 };
 

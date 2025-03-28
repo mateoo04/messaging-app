@@ -35,7 +35,7 @@ export function ChatsProvider({ children }) {
 
     socket.on('newPrivateChat', (newChat) => {
       if (!chats.some((chat) => chat.id === newChat.id))
-        setChats([...chats, newChat]);
+        setChats([newChat, ...chats]);
 
       console.log('new private chat: ' + newChat);
 
@@ -53,13 +53,19 @@ export function ChatsProvider({ children }) {
       );
 
     socket.on('message', (message) => {
-      setChats(
-        chats.map((chat) => {
-          if (chat.id == message.chatId)
-            return { ...chat, messages: [message] };
-          else return chat;
-        })
-      );
+      let toBeMovedChatIndex;
+
+      let newChatsArray = chats.map((chat, index) => {
+        if (chat.id == message.chatId) {
+          toBeMovedChatIndex = index;
+          return { ...chat, messages: [message] };
+        } else return chat;
+      });
+
+      let toBeMovedChat = newChatsArray.splice(toBeMovedChatIndex, 1)[0];
+      newChatsArray.unshift(toBeMovedChat);
+
+      setChats(newChatsArray);
 
       return () => {
         socket.off('message');
@@ -68,12 +74,24 @@ export function ChatsProvider({ children }) {
   }, [chats]);
 
   const addSentMessage = (message) => {
-    setChats(
-      chats.map((chat) => {
-        if (chat.id === message.chatId) return { ...chat, messages: [message] };
+    if (!chats.some((chat) => chat.id === message.chat.id)) {
+      setChats([{ ...message.chat, messages: [message] }, ...chats]);
+    } else {
+      let toBeMovedChatIndex;
+
+      let newChatsArray = chats.map((chat, index) => {
+        if (chat.id === message.chatId) {
+          toBeMovedChatIndex = index;
+          return { ...chat, messages: [message] };
+        }
         return chat;
-      })
-    );
+      });
+
+      let toBeMovedChat = newChatsArray.splice(toBeMovedChatIndex, 1)[0];
+      newChatsArray.unshift(toBeMovedChat);
+
+      setChats(newChatsArray);
+    }
   };
 
   return (

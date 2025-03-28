@@ -1,8 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import personSvg from '../../assets/icons/person-circle.svg';
+import { useAuth } from '../../context/authContext';
 
 export default function NewChatSearch({ stopUserSearch }) {
+  const { getUser } = useAuth();
   const [search, setSearch] = useState('');
   const [users, setUsers] = useState([]);
 
@@ -43,23 +46,28 @@ export default function NewChatSearch({ stopUserSearch }) {
         onChange={(e) => setSearch(e.target.value)}
         className='form-control mb-3'
       />
-      <div>
-        <ul>
-          {users.map((user) => {
-            return (
-              <Link
-                to={`/chats/private/${user.id}`}
-                className='text-decoration-none'
-              >
-                <li>
+      <ul className='sidebar-list'>
+        {users.map((user) => {
+          return (
+            <Link
+              to={`/chats/private/${user.id}`}
+              className='text-decoration-none'
+            >
+              <li className='d-flex gap-2'>
+                <img
+                  className='profile-photo'
+                  src={getUser().profilePhotoUrl || personSvg}
+                  alt=''
+                />
+                <div>
                   <p className='mb-0 fw-bold'>{user.displayName}</p>
                   <p className='text-secondary'>{user.username}</p>
-                </li>
-              </Link>
-            );
-          })}
-        </ul>
-      </div>
+                </div>
+              </li>
+            </Link>
+          );
+        })}
+      </ul>
     </>
   );
 }

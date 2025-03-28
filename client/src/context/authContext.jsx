@@ -1,4 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 const AuthContext = createContext();
 
@@ -10,9 +12,24 @@ export function AuthProvider({ children }) {
     setIsAuthenticated(true);
     setUser(user);
   };
-  const logOut = () => {
-    setIsAuthenticated(false);
-    setUser({});
+  const logOut = async () => {
+    try {
+      const response = await fetch('/api/auth/log-out', {
+        method: 'POST',
+        credentials: 'include',
+      });
+
+      if (!response.ok) throw new Error('Error logging out');
+
+      const json = await response.json();
+
+      if (json.success) {
+        setIsAuthenticated(false);
+        setUser({});
+      }
+    } catch {
+      toast.error('Error logging out');
+    }
   };
   const getUser = () => user;
 

@@ -1,6 +1,6 @@
 const { Router } = require('express');
 
-const { signUp, logIn } = require('../controllers/authController');
+const { signUp, logIn, logOut } = require('../controllers/authController');
 const { validateSignUp, validateLogIn } = require('../lib/validators');
 const { passport } = require('../config/passport');
 
@@ -23,5 +23,7 @@ authRouter.post(
       },
     })
 );
+
+authRouter.post('/log-out', logOut);
 
 module.exports = authRouter;

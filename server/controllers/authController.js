@@ -47,6 +47,7 @@ async function signUp(req, res, next) {
         displayName: user.displayName,
         username: user.username,
         id: user.id,
+        profilePhotoUrl: user.profilePhotoUrl,
       },
     });
   } catch (err) {
@@ -88,6 +89,7 @@ async function logIn(req, res, next) {
           displayName: user.displayName,
           username: user.username,
           id: user.id,
+          profilePhotoUrl: user.profilePhotoUrl,
         },
       });
     } else res.status(401).json('Invalid credentials');
@@ -96,4 +98,9 @@ async function logIn(req, res, next) {
   }
 }
 
-module.exports = { signUp, logIn };
+async function logOut(req, res, next) {
+  res.clearCookie('authToken', { httpOnly: true });
+  res.status(200).json({ success: true, message: 'Logged out' });
+}
+
+module.exports = { signUp, logIn, logOut };

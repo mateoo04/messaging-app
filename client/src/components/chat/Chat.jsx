@@ -4,6 +4,8 @@ import { useAuth } from '../../context/authContext.jsx';
 import Sidebar from '../sidebar/Sidebar.jsx';
 import sendIcon from '../../assets/icons/send.svg';
 import { format } from 'date-fns';
+import personSvg from '../../assets/icons/person-circle.svg';
+import globeSvg from '../../assets/icons/globe.svg';
 
 export default function Chat({
   messages,
@@ -25,8 +27,17 @@ export default function Chat({
     <div className='d-flex h-100'>
       <Sidebar />
       <main className='col d-flex flex-column pt-4'>
-        <h2>{chatName}</h2>
-        <p className='text-secondary mb-2'>{chatDescription}</p>
+        <div className='d-flex gap-2 align-items-start '>
+          <img
+            className='profile-photo chat-profile-photo mt-2'
+            src={isGroup ? globeSvg : getUser().profilePhotoUrl || personSvg}
+            alt=''
+          />
+          <div>
+            <h2 className='mb-0 mt-0 fs-3'>{chatName}</h2>
+            <p className='text-secondary mb-2'>{chatDescription}</p>
+          </div>
+        </div>
         <div className='messages col d-flex flex-column'>
           {messages.map((msg, index) => (
             <div

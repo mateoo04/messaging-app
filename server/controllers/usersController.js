@@ -27,4 +27,20 @@ async function getAllUsers(req, res, next) {
   }
 }
 
-module.exports = { getAllUsers };
+async function getUserById(req, res, next) {
+  try {
+    const id = req.params.userId;
+
+    const user = await prisma.user.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    return res.json(user);
+  } catch (err) {
+    next(err);
+  }
+}
+
+module.exports = { getAllUsers, getUserById };
