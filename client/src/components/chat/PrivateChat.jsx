@@ -8,7 +8,7 @@ import { useAuth } from '../../context/authContext.jsx';
 
 export default function PrivateChat() {
   const { addSentMessage } = useChats();
-  const { getUser } = useAuth();
+  const { authenticatedUser } = useAuth();
   const { recipientId } = useParams();
 
   const [chatId, setChatId] = useState('');
@@ -46,7 +46,9 @@ export default function PrivateChat() {
 
         setChatId(() => json.id);
         setMessages(json.messages);
-        setRecipient(json.members.find((member) => member.id !== getUser().id));
+        setRecipient(
+          json.members.find((member) => member.id !== authenticatedUser.id)
+        );
       } catch {
         toast.error('Error fetching messages');
       }
@@ -64,7 +66,7 @@ export default function PrivateChat() {
         socket.off('message');
       };
     });
-  }, [chatId, recipientId, getUser]);
+  }, [chatId, recipientId, authenticatedUser]);
 
   const sendMessage = async (messageText) => {
     if (messageText.trim()) {
@@ -99,7 +101,8 @@ export default function PrivateChat() {
       messages={messages}
       sendMessage={sendMessage}
       chatName={recipient.displayName}
-      chatDescription={recipient.username}
+      chatDescription={'@' + recipient.username}
+      chatPhotoUrl={recipient.profilePhotoUrl}
     ></Chat>
   );
 }

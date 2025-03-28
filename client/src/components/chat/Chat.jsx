@@ -13,8 +13,9 @@ export default function Chat({
   chatName,
   chatDescription,
   isGroup,
+  chatPhotoUrl,
 }) {
-  const { isAuthenticated, getUser } = useAuth();
+  const { isAuthenticated, authenticatedUser } = useAuth();
 
   const [messageText, setMessageText] = useState('');
   const messagesEndRef = useRef(null);
@@ -30,7 +31,7 @@ export default function Chat({
         <div className='d-flex gap-2 align-items-start '>
           <img
             className='profile-photo chat-profile-photo mt-2'
-            src={isGroup ? globeSvg : getUser().profilePhotoUrl || personSvg}
+            src={isGroup ? globeSvg : chatPhotoUrl || personSvg}
             alt=''
           />
           <div>
@@ -43,14 +44,14 @@ export default function Chat({
             <div
               key={`message-${index}`}
               className={
-                (msg.sender.id === getUser().id
+                (msg.sender.id === authenticatedUser.id
                   ? 'align-self-end user-message-container'
                   : 'align-self-start') + ' mw-80 d-flex align-bottom'
               }
             >
               <div
                 className={
-                  (msg.sender.id === getUser().id
+                  (msg.sender.id === authenticatedUser.id
                     ? 'users-message align-self-end'
                     : 'others-message align-self-start') +
                   ' pt-1 pb-1 ps-3 pe-3 mb-1 rounded-4'
@@ -58,7 +59,7 @@ export default function Chat({
               >
                 {isGroup && (
                   <p key={`author-${index}`} className='message-sender'>
-                    {msg.sender?.id === getUser()?.id
+                    {msg.sender?.id === authenticatedUser?.id
                       ? 'You'
                       : msg.sender.displayName}
                   </p>

@@ -18,3 +18,26 @@ $primary: #2b476e;
 p {
   margin-bottom: 0;
 }
+
+@mixin profile-photo-default {
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.profile-photo {
+  width: 34px;
+  height: 34px;
+  @include profile-photo-default;
+}
+
+.chat-profile-photo {
+  width: 40px;
+  height: 40px;
+  @include profile-photo-default;
+}
+
+.edit-profile-photo {
+  width: 80px;
+  height: 80px;
+  @include profile-photo-default;
+}

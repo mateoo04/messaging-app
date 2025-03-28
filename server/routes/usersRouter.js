@@ -1,5 +1,9 @@
 const { Router } = require('express');
-const { getAllUsers, getUserById } = require('../controllers/usersController');
+const {
+  getAllUsers,
+  getUserById,
+  updateUser,
+} = require('../controllers/usersController');
 const { passport } = require('../config/passport');
 
 const usersRouter = Router();
@@ -14,6 +18,12 @@ usersRouter.get(
   '/:userId',
   passport.authenticate('jwt', { session: false }),
   getUserById
+);
+
+usersRouter.post(
+  '/update',
+  passport.authenticate('jwt', { session: false }),
+  updateUser
 );
 
 module.exports = usersRouter;

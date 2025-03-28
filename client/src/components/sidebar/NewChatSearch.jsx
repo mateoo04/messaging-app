@@ -5,9 +5,9 @@ import personSvg from '../../assets/icons/person-circle.svg';
 import { useAuth } from '../../context/authContext';
 
 export default function NewChatSearch({ stopUserSearch }) {
-  const { getUser } = useAuth();
+  const { authenticatedUser } = useAuth();
   const [search, setSearch] = useState('');
-  const [users, setUsers] = useState([]);
+  const [users, setAuthenticatedUsers] = useState([]);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -21,7 +21,7 @@ export default function NewChatSearch({ stopUserSearch }) {
 
         const json = await response.json();
 
-        setUsers(json.users);
+        setAuthenticatedUsers(json.users);
       } catch {
         toast.error('Error fetching users');
       }
@@ -56,12 +56,12 @@ export default function NewChatSearch({ stopUserSearch }) {
               <li className='d-flex gap-2'>
                 <img
                   className='profile-photo'
-                  src={getUser().profilePhotoUrl || personSvg}
+                  src={user.profilePhotoUrl || personSvg}
                   alt=''
                 />
                 <div>
                   <p className='mb-0 fw-bold'>{user.displayName}</p>
-                  <p className='text-secondary'>{user.username}</p>
+                  <p className='text-secondary'>@{user.username}</p>
                 </div>
               </li>
             </Link>

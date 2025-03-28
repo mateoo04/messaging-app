@@ -43,4 +43,27 @@ async function getUserById(req, res, next) {
   }
 }
 
-module.exports = { getAllUsers, getUserById };
+async function updateUser(req, res, next) {
+  try {
+    const { profilePhotoUrl, displayName } = req.query;
+
+    if (!profilePhotoUrl && !displayName)
+      return res.status(400).json({ message: 'No data to update provided' });
+
+    const user = await prisma.user.update({
+      where: {
+        id: req.user.id,
+      },
+      data: {
+        profilePhotoUrl: profilePhotoUrl || undefined,
+        displayName: displayName || undefined,
+      },
+    });
+
+    return res.json({ success: true, user });
+  } catch (err) {
+    next(err);
+  }
+}
+
+module.exports = { getAllUsers, getUserById, updateUser };

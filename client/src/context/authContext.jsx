@@ -6,11 +6,11 @@ const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState({});
+  const [authenticatedUser, setAuthenticatedUser] = useState({});
 
   const logIn = (user) => {
     setIsAuthenticated(true);
-    setUser(user);
+    setAuthenticatedUser(user);
   };
   const logOut = async () => {
     try {
@@ -25,13 +25,12 @@ export function AuthProvider({ children }) {
 
       if (json.success) {
         setIsAuthenticated(false);
-        setUser({});
+        setAuthenticatedUser({});
       }
     } catch {
       toast.error('Error logging out');
     }
   };
-  const getUser = () => user;
 
   useEffect(() => {
     const validateCredentials = async () => {
@@ -48,7 +47,7 @@ export function AuthProvider({ children }) {
 
         if (json.success) {
           setIsAuthenticated(true);
-          setUser(json.user);
+          setAuthenticatedUser(json.user);
         }
       } catch {
         console.log('Error validating credentials');
@@ -59,7 +58,16 @@ export function AuthProvider({ children }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, getUser, logIn, logOut }}>
+    <AuthContext.Provider
+      value={{
+        isAuthenticated,
+        authenticatedUser,
+        authenticatedUser,
+        setAuthenticatedUser,
+        logIn,
+        logOut,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

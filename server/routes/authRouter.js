@@ -20,6 +20,7 @@ authRouter.post(
         displayName: req.user.displayName,
         username: req.user.username,
         id: req.user.id,
+        profilePhotoUrl: req.user.profilePhotoUrl,
       },
     })
 );

@@ -11,6 +11,7 @@ import { AuthProvider } from '../context/authContext.jsx';
 import GroupChat from './chat/GroupChat.jsx';
 import PrivateChat from './chat/PrivateChat.jsx';
 import { ChatsProvider } from '../context/chatsContext.jsx';
+import EditProfile from './EditProfile.jsx';
 
 const router = createBrowserRouter([
   { path: '/', element: <Navigate to='/chats/group/global-chat' /> },
@@ -21,6 +22,7 @@ const router = createBrowserRouter([
     element: <LogIn />,
   },
   { path: '/sign-up', element: <SignUp /> },
+  { path: '/edit-profile', element: <EditProfile /> },
   { path: '*', element: <NotFound /> },
 ]);
 

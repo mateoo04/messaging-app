@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 
 async function getAllChats(req, res, next) {
   try {
-    const chats = await prisma.chat.findMany({
+    let chats = await prisma.chat.findMany({
       where: {
         AND: [
           {
@@ -36,6 +36,11 @@ async function getAllChats(req, res, next) {
         },
       },
     });
+
+    chats.sort((a, b) => {
+      return b.messages?.at(0)?.time - a.messages?.at(0)?.time;
+    });
+
     return res.json({ chats });
   } catch (err) {
     next(err);

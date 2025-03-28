@@ -1,13 +1,32 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/authContext';
 import { useChats } from '../../context/chatsContext';
-import { format } from 'date-fns';
+import {
+  format,
+  isBefore,
+  isThisYear,
+  isToday,
+  isWithinInterval,
+  isYesterday,
+  subDays,
+} from 'date-fns';
 import personSvg from '../../assets/icons/person-circle.svg';
 import globeSvg from '../../assets/icons/globe.svg';
 
 export default function ChatList({ startUserSearch }) {
   const { chats } = useChats();
-  const { isAuthenticated, getUser } = useAuth();
+  const { isAuthenticated, authenticatedUser } = useAuth();
+
+  const formatTime = (time) => {
+    if (isToday(time)) return format(time, 'HH:mm');
+    else if (isYesterday(time)) return 'Yesterday';
+    else if (
+      isWithinInterval(time, { start: subDays(new Date(), 7), end: new Date() })
+    )
+      return format(time, 'EEEE');
+    else if (isThisYear(time)) return format(time, 'dd.MM.');
+    else return format(time, 'dd.MM.yyyy.');
+  };
 
   return (
     <>
@@ -32,7 +51,7 @@ export default function ChatList({ startUserSearch }) {
         </li>
         {chats.map((chat) => {
           const recipient = chat.members?.find(
-            (member) => member.id != getUser().id
+            (member) => member.id != authenticatedUser.id
           );
           const lastMessage = chat.messages?.at(0);
           const sender = lastMessage?.sender;
@@ -45,19 +64,21 @@ export default function ChatList({ startUserSearch }) {
               >
                 <img
                   className='profile-photo'
-                  src={getUser().profilePhotoUrl || personSvg}
+                  src={recipient.profilePhotoUrl || personSvg}
                   alt=''
                 />
                 <div className='col'>
                   <div className='d-flex justify-content-between'>
                     <p className='fw-bold'>{recipient?.displayName}</p>
                     <p className='text-secondary'>
-                      {lastMessage?.time && format(lastMessage.time, 'HH:mm')}
+                      {lastMessage?.time && formatTime(lastMessage.time)}
                     </p>
                   </div>
                   <p className='text-secondary last-message'>
                     {`${
-                      sender?.id === getUser().id ? 'You' : sender?.displayName
+                      sender?.id === authenticatedUser.id
+                        ? 'You'
+                        : sender?.displayName
                     }: ${lastMessage?.text}`}
                   </p>
                 </div>
