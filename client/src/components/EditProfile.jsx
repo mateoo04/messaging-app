@@ -49,7 +49,6 @@ export default function EditProfile() {
           );
       }
     } catch (error) {
-      console.log(error);
       toast.error('Error saving the profile photo');
     }
   };

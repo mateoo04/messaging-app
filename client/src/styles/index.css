@@ -19,17 +19,16 @@ aside {
   width: 300px;
 }
 
-.sidebar-list {
+.main-menu-list {
   display: flex;
   flex-direction: column;
-  overflow-y: scroll;
   list-style-type: none;
   padding: 14px 14px 0 14px;
   margin-bottom: 0;
   height: 100%;
 }
 
-.sidebar-list li {
+.main-menu-list li {
   padding-top: 4px;
   padding-bottom: 4px;
 }
@@ -99,5 +98,22 @@ textarea:focus {
 }
 
 .message-image {
-  max-width: 30ch;
+  max-width: 24ch;
+}
+
+@media (min-width: 671px) {
+  .main-menu-button {
+    display: none;
+  }
+}
+
+@media (max-width: 670px) {
+  .sidebar {
+    display: none;
+  }
+}
+
+aside {
+  max-height: 100vh;
+  overflow-y: scroll;
 }

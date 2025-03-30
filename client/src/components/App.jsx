@@ -12,9 +12,11 @@ import GroupChat from './chat/GroupChat.jsx';
 import PrivateChat from './chat/PrivateChat.jsx';
 import { ChatsProvider } from '../context/chatsContext.jsx';
 import EditProfile from './EditProfile.jsx';
+import MainMenu from './main-menu/MainMenu.jsx';
 
 const router = createBrowserRouter([
   { path: '/', element: <Navigate to='/chats/group/global-chat' /> },
+  { path: '/menu', element: <MainMenu /> },
   { path: '/chats/group/:chatId', element: <GroupChat /> },
   { path: '/chats/private/:recipientId', element: <PrivateChat /> },
   {

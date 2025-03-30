@@ -39,7 +39,7 @@ export default function ChatList({ startUserSearch }) {
           <b>+</b> NEW CHAT
         </button>
       )}
-      <ul className='sidebar-list'>
+      <ul className='main-menu-list'>
         <li className='nav-item'>
           <Link
             className='nav-link active fw-bold d-flex gap-2 align-items-center'

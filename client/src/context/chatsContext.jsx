@@ -38,8 +38,6 @@ export function ChatsProvider({ children }) {
         if (!chats.some((chat) => chat.id === newChat.id))
           setChats([newChat, ...chats]);
 
-        console.log('new private chat: ' + newChat);
-
         return () => {
           socket.off('newPrivateChat');
         };
@@ -68,10 +66,6 @@ export function ChatsProvider({ children }) {
         socket.emit('join room', room);
 
         socket.on(`status-update-${filteredMember.id}`, (isOnline) => {
-          console.log(
-            `status update, isOnline: ${isOnline} for ${filteredMember.id}`
-          );
-
           setChats(
             chats.map((chat) => {
               return {

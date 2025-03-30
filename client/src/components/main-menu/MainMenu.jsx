@@ -7,14 +7,14 @@ import threeDotsSvg from '../../assets/icons/three-dots.svg';
 import { useNavigate } from 'react-router-dom';
 import { useChats } from '../../context/chatsContext';
 
-export default function Sidebar() {
+export default function MainMenu() {
   const navigate = useNavigate();
   const { isAuthenticated, authenticatedUser, logOut } = useAuth();
   const { setChats } = useChats();
   const [isSearching, setIsSearching] = useState(false);
 
   return (
-    <aside className='d-flex flex-column pt-4 ps-3 pe-3 border-end me-3'>
+    <div className='d-flex flex-column pt-4 ps-3 pe-3 border-end'>
       <div className='d-flex justify-content-between align-items-center ms-3 mb-3 ml-3'>
         <div className='d-flex gap-2 align-items-center'>
           <img
@@ -88,6 +88,6 @@ export default function Sidebar() {
       ) : (
         <ChatList startUserSearch={() => setIsSearching(true)} />
       )}
-    </aside>
+    </div>
   );
 }

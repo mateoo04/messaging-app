@@ -26,8 +26,6 @@ const setUpSocketEvents = (io) => {
   events.on('statusChange', ({ userId, isOnline }) => {
     if (!ioInstance) return;
 
-    console.log(`emitting isOnline: ${isOnline} to is-online-${userId}`);
-
     ioInstance
       .to(`is-online-${userId}`)
       .emit(`status-update-${userId}`, isOnline);

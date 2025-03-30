@@ -46,7 +46,7 @@ export default function NewChatSearch({ stopUserSearch }) {
         onChange={(e) => setSearch(e.target.value)}
         className='form-control mb-3'
       />
-      <ul className='sidebar-list'>
+      <ul className='main-menu-list'>
         {users.map((user) => {
           return (
             <Link

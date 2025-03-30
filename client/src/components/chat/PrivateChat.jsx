@@ -62,7 +62,6 @@ export default function PrivateChat() {
     socket.on('message', (message) => {
       if (message.chatId == chatId) setMessages((prev) => [...prev, message]);
 
-      console.log('socket: message received');
       return () => {
         socket.off('message');
       };

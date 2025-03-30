@@ -1,12 +1,13 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/authContext.jsx';
-import Sidebar from '../sidebar/Sidebar.jsx';
+import MainMenu from '../main-menu/MainMenu.jsx';
 import sendIcon from '../../assets/icons/send.svg';
 import { format } from 'date-fns';
 import personSvg from '../../assets/icons/person-circle.svg';
 import globeSvg from '../../assets/icons/globe.svg';
 import imageSvg from '../../assets/icons/image.svg';
+import arrowLeftSvg from '../../assets/icons/arrow-left.svg';
 
 export default function Chat({
   messages,
@@ -30,12 +31,17 @@ export default function Chat({
 
   return (
     <div className='d-flex h-100'>
-      <Sidebar />
-      <main className='col d-flex flex-column pt-4'>
-        <div className='d-flex gap-2 align-items-start '>
+      <aside className='sidebar'>
+        <MainMenu />
+      </aside>
+      <main className='col d-flex flex-column pt-1 ms-3 me-3'>
+        <div className='d-flex gap-2 align-items-center '>
+          <Link to='/menu' className='me-2 main-menu-button'>
+            <img className='back-arrow' src={arrowLeftSvg} alt='' />
+          </Link>
           <div className='position-relative'>
             <img
-              className='profile-photo chat-profile-photo mt-2'
+              className='profile-photo chat-profile-photo mt-0'
               src={isGroup ? globeSvg : chatPhotoUrl || personSvg}
               alt=''
             />
@@ -47,7 +53,7 @@ export default function Chat({
               ></span>
             )}
           </div>
-          <div>
+          <div className='pt-2'>
             <h2 className='mb-0 mt-0 fs-3'>{chatName}</h2>
             <p className='text-secondary mb-2'>{chatDescription}</p>
           </div>
@@ -59,7 +65,7 @@ export default function Chat({
               className={
                 (msg.sender.id === authenticatedUser.id
                   ? 'align-self-end user-message-container'
-                  : 'align-self-start') + ' mw-80 d-flex align-bottom'
+                  : 'align-self-start') + ' mw-85 d-flex align-bottom'
               }
             >
               <div
