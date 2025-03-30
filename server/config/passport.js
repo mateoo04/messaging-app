@@ -6,8 +6,13 @@ const prisma = new PrismaClient();
 
 const cookieExtractor = (req) => {
   let token = null;
-  if (req && req.cookies?.authToken?.expiresAt > new Date()) {
-    token = req.cookies.authToken.token;
+  if (
+    req &&
+    req.cookies.authToken &&
+    req.cookies.authTokenExpiry &&
+    req.cookies.authTokenExpiry > new Date()
+  ) {
+    token = req.cookies.authToken;
     token = token.replace('Bearer ', '');
   }
 

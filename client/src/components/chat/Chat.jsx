@@ -14,6 +14,7 @@ export default function Chat({
   chatName,
   chatDescription,
   isGroup,
+  isOnline,
   chatPhotoUrl,
 }) {
   const { isAuthenticated, authenticatedUser } = useAuth();
@@ -32,11 +33,20 @@ export default function Chat({
       <Sidebar />
       <main className='col d-flex flex-column pt-4'>
         <div className='d-flex gap-2 align-items-start '>
-          <img
-            className='profile-photo chat-profile-photo mt-2'
-            src={isGroup ? globeSvg : chatPhotoUrl || personSvg}
-            alt=''
-          />
+          <div className='position-relative'>
+            <img
+              className='profile-photo chat-profile-photo mt-2'
+              src={isGroup ? globeSvg : chatPhotoUrl || personSvg}
+              alt=''
+            />
+            {!isGroup && (
+              <span
+                className={`chat-status-indicator ${
+                  isOnline ? 'online' : 'offline'
+                }`}
+              ></span>
+            )}
+          </div>
           <div>
             <h2 className='mb-0 mt-0 fs-3'>{chatName}</h2>
             <p className='text-secondary mb-2'>{chatDescription}</p>

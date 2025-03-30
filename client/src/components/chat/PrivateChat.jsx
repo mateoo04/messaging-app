@@ -69,6 +69,16 @@ export default function PrivateChat() {
     });
   }, [chatId, recipientId, authenticatedUser]);
 
+  useEffect(() => {
+    socket.on(`status-update-${recipient.id}`, (isOnline) => {
+      setRecipient({ ...recipient, isOnline });
+
+      return () => {
+        socket.off(`status-update-${recipient.id}`);
+      };
+    });
+  });
+
   const sendMessage = async (messageText, file) => {
     if (messageText.trim() || file) {
       try {
@@ -127,6 +137,7 @@ export default function PrivateChat() {
     <Chat
       messages={messages}
       sendMessage={sendMessage}
+      isOnline={recipient.isOnline}
       chatName={recipient.displayName}
       chatDescription={'@' + recipient.username}
       chatPhotoUrl={recipient.profilePhotoUrl}

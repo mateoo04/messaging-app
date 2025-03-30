@@ -1,6 +1,7 @@
 const { PrismaClient } = require('@prisma/client');
 const { events } = require('../config/events');
 const { passport } = require('../config/passport');
+const redis = require('../config/redis');
 
 const prisma = new PrismaClient();
 
@@ -35,6 +36,17 @@ async function getAllChats(req, res, next) {
           },
         },
       },
+    });
+
+    const onlineUsers = await redis.sMembers('onlineUsers');
+
+    chats = chats.map((chat) => {
+      const members = chat.members.map((member) => {
+        if (onlineUsers.includes(member.id))
+          return { ...member, isOnline: true };
+        return { ...member, isOnline: false };
+      });
+      return { ...chat, members };
     });
 
     chats.sort((a, b) => {
@@ -117,6 +129,13 @@ async function getPrivateChatByMembers(req, res, next) {
     });
 
     if (!chat) return res.status(404).json({ message: 'Chat not found' });
+
+    const onlineUsers = await redis.sMembers('onlineUsers');
+
+    chat.members = chat.members.map((member) => {
+      if (onlineUsers.includes(member.id)) return { ...member, isOnline: true };
+      return { ...member, isOnline: false };
+    });
 
     return res.json(chat);
   } catch (err) {

@@ -62,11 +62,18 @@ export default function ChatList({ startUserSearch }) {
                 className='nav-link active d-flex gap-2'
                 to={`/chats/private/${recipient.id}`}
               >
-                <img
-                  className='profile-photo'
-                  src={recipient.profilePhotoUrl || personSvg}
-                  alt=''
-                />
+                <div className='position-relative'>
+                  <img
+                    className='profile-photo'
+                    src={recipient.profilePhotoUrl || personSvg}
+                    alt=''
+                  />
+                  <span
+                    className={`status-indicator ${
+                      recipient?.isOnline ? 'online' : 'offline'
+                    }`}
+                  ></span>
+                </div>
                 <div className='col'>
                   <div className='d-flex justify-content-between'>
                     <p className='fw-bold'>{recipient?.displayName}</p>

@@ -22,6 +22,16 @@ const setUpSocketEvents = (io) => {
 
     ioInstance.to(`events-${recipientId}`).emit('newPrivateChat', chat);
   });
+
+  events.on('statusChange', ({ userId, isOnline }) => {
+    if (!ioInstance) return;
+
+    console.log(`emitting isOnline: ${isOnline} to is-online-${userId}`);
+
+    ioInstance
+      .to(`is-online-${userId}`)
+      .emit(`status-update-${userId}`, isOnline);
+  });
 };
 
 module.exports = { events, setUpSocketEvents };

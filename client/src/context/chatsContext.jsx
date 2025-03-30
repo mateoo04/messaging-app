@@ -31,26 +31,62 @@ export function ChatsProvider({ children }) {
   }, [isAuthenticated, chats.length]);
 
   useEffect(() => {
-    socket.emit('join room', `events-${authenticatedUser.id}`);
+    if (authenticatedUser.id) {
+      socket.emit('join room', `events-${authenticatedUser.id}`);
 
-    socket.on('newPrivateChat', (newChat) => {
-      if (!chats.some((chat) => chat.id === newChat.id))
-        setChats([newChat, ...chats]);
+      socket.on('newPrivateChat', (newChat) => {
+        if (!chats.some((chat) => chat.id === newChat.id))
+          setChats([newChat, ...chats]);
 
-      console.log('new private chat: ' + newChat);
+        console.log('new private chat: ' + newChat);
 
-      return () => {
-        socket.off('newPrivateChat');
-      };
-    });
+        return () => {
+          socket.off('newPrivateChat');
+        };
+      });
+    } else if (chats.length) setChats([]);
   }, [chats, authenticatedUser]);
 
   useEffect(() => {
-    if (chats.length > 0)
+    let filteredMembers = [];
+
+    if (chats.length > 0) {
       socket.emit(
         'join rooms',
         chats.map((chat) => chat.id)
       );
+
+      filteredMembers = chats.reduce((accMembers, chat) => {
+        const otherMembers = chat.members.filter(
+          (member) => member.id !== authenticatedUser.id
+        );
+        return accMembers.concat(otherMembers);
+      }, []);
+
+      filteredMembers.forEach((filteredMember) => {
+        const room = `is-online-${filteredMember.id}`;
+        socket.emit('join room', room);
+
+        socket.on(`status-update-${filteredMember.id}`, (isOnline) => {
+          console.log(
+            `status update, isOnline: ${isOnline} for ${filteredMember.id}`
+          );
+
+          setChats(
+            chats.map((chat) => {
+              return {
+                ...chat,
+                members: chat.members.map((member) => {
+                  if (member.id === filteredMember.id)
+                    return { ...member, isOnline };
+                  return member;
+                }),
+              };
+            })
+          );
+        });
+      });
+    }
 
     socket.on('message', (message) => {
       let toBeMovedChatIndex;
@@ -71,7 +107,13 @@ export function ChatsProvider({ children }) {
         socket.off('message');
       };
     });
-  }, [chats]);
+
+    return () => {
+      filteredMembers.forEach((filteredMember) => {
+        socket.off(`status-update-${filteredMember.id}`);
+      });
+    };
+  }, [chats, authenticatedUser.id]);
 
   const addSentMessage = (message) => {
     if (!chats.some((chat) => chat.id === message.chat.id)) {

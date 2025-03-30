@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import Cookies from 'js-cookie';
 import { toast } from 'react-toastify';
 
 const AuthContext = createContext();
@@ -34,6 +34,8 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     const validateCredentials = async () => {
+      if (!Cookies.get('username')) return;
+
       try {
         const response = await fetch('/api/auth/validate-credentials', {
           method: 'POST',
@@ -61,7 +63,6 @@ export function AuthProvider({ children }) {
     <AuthContext.Provider
       value={{
         isAuthenticated,
-        authenticatedUser,
         authenticatedUser,
         setAuthenticatedUser,
         logIn,

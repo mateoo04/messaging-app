@@ -8,7 +8,6 @@ function issueJWT(user) {
   return {
     token: 'Bearer ' + token,
     expiresAt: Date.now() + 24 * 60 * 60 * 1000,
-    username: user.username,
   };
 }
 
