@@ -39,7 +39,7 @@ app.use(
 async function clearOnlineUsers() {
   try {
     await redis.del('onlineUsers');
-    console.log('Cleared online users set from Redis.');
+    console.log('Cleared online users set on Redis.');
   } catch (err) {
     console.error('Error clearing online users set:', err);
   }

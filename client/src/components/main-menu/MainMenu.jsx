@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { memo, useState } from 'react';
 import NewChatSearch from './NewChatSearch';
 import ChatList from './ChatList';
 import { useAuth } from '../../context/authContext';
@@ -7,7 +7,7 @@ import threeDotsSvg from '../../assets/icons/three-dots.svg';
 import { useNavigate } from 'react-router-dom';
 import { useChats } from '../../context/chatsContext';
 
-export default function MainMenu() {
+const MainMenu = memo(function MainMenu() {
   const navigate = useNavigate();
   const { isAuthenticated, authenticatedUser, logOut } = useAuth();
   const { setChats } = useChats();
@@ -72,10 +72,10 @@ export default function MainMenu() {
                   <button
                     className='dropdown-item'
                     onClick={() => {
-                      navigate('/sign-in');
+                      navigate('/sign-up');
                     }}
                   >
-                    Sign in
+                    Sign up
                   </button>
                 </li>
               </>
@@ -90,4 +90,6 @@ export default function MainMenu() {
       )}
     </div>
   );
-}
+});
+
+export default MainMenu;

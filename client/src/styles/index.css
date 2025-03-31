@@ -99,6 +99,11 @@ textarea:focus {
 
 .message-image {
   max-width: 24ch;
+  max-height: 100%;
+}
+
+.message-image-container {
+  height: 200px;
 }
 
 @media (min-width: 671px) {

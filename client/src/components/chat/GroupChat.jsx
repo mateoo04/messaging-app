@@ -5,6 +5,7 @@ import { toast } from 'react-toastify';
 import Chat from './Chat.jsx';
 import supabase from '../../utils/supabase.js';
 import { useAuth } from '../../context/authContext.jsx';
+import { validateFile } from '../../utils/fileValidation.js';
 
 export default function GroupChat() {
   const { authenticatedUser } = useAuth();
@@ -49,7 +50,7 @@ export default function GroupChat() {
       try {
         let photoUrl;
 
-        if (file) {
+        if (file && validateFile(file)) {
           const filePath = `chat-photos/${authenticatedUser.id}-${Date.now()}`;
 
           const { data, error } = await supabase.storage

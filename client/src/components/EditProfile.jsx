@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { toast } from 'react-toastify';
 import arrowLeftSvg from '../assets/icons/arrow-left.svg';
 import { Link } from 'react-router-dom';
+import { validateFile } from '../utils/fileValidation';
 
 export default function EditProfile() {
   const { authenticatedUser, setAuthenticatedUser } = useAuth();
@@ -19,8 +20,10 @@ export default function EditProfile() {
       return;
     }
 
+    const isValidImage = file && validateFile(file);
+
     try {
-      if (!file && displayName) {
+      if (!isValidImage && displayName) {
         updateUser(`/api/users/update?displayName=${displayName}`);
       } else {
         const filePath = `profile-photos/${authenticatedUser.id}-${Date.now()}`;
@@ -94,13 +97,14 @@ export default function EditProfile() {
           Display name
           <input
             id='displayName'
+            name='displayName'
             className='form-control'
             type='text'
             value={displayName}
             onChange={(e) => setDisplayName(e.target.value)}
           />
         </label>
-        <label htmlFor='file-input' className='mb-3'>
+        <label htmlFor='file' className='mb-3'>
           New profile photo
           <input
             id='file-input'

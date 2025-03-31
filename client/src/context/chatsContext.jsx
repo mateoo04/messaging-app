@@ -35,8 +35,15 @@ export function ChatsProvider({ children }) {
       socket.emit('join room', `events-${authenticatedUser.id}`);
 
       socket.on('newPrivateChat', (newChat) => {
-        if (!chats.some((chat) => chat.id === newChat.id))
+        if (!chats.some((chat) => chat.id === newChat.id)) {
+          newChat.members = newChat.members.map((member) => {
+            if (member.id !== authenticatedUser.id)
+              return { ...member, isOnline: true };
+            return member;
+          });
+
           setChats([newChat, ...chats]);
+        }
 
         return () => {
           socket.off('newPrivateChat');

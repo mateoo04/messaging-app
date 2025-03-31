@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { use, useCallback, useEffect, useState } from 'react';
 import socket from '../../utils/socket.js';
 import { useParams } from 'react-router-dom';
 import Chat from './Chat.jsx';
@@ -6,9 +6,10 @@ import { toast } from 'react-toastify';
 import { useChats } from '../../context/chatsContext.jsx';
 import { useAuth } from '../../context/authContext.jsx';
 import supabase from '../../utils/supabase.js';
+import { validateFile } from '../../utils/fileValidation.js';
 
 export default function PrivateChat() {
-  const { addSentMessage, chats, setChats } = useChats();
+  const { addSentMessage, setChats } = useChats();
   const { authenticatedUser } = useAuth();
   const { recipientId } = useParams();
 
@@ -16,11 +17,13 @@ export default function PrivateChat() {
   const [messages, setMessages] = useState([]);
   const [recipient, setRecipient] = useState({});
 
-  const requestMarkChatRead = useCallback(() => {
+  useEffect(() => {
+    if (!messages.length) return;
+
     if (messages?.at(messages.length - 1)?.sender.id !== authenticatedUser.id) {
       socket.emit('mark chat read', chatId);
     }
-  }, [messages, authenticatedUser.id, chatId]);
+  }, [authenticatedUser.id, chatId, messages]);
 
   useEffect(() => {
     setChats((prevChats) =>
@@ -65,7 +68,6 @@ export default function PrivateChat() {
         setRecipient(
           json.members.find((member) => member.id !== authenticatedUser.id)
         );
-        requestMarkChatRead();
       } catch (err) {
         console.error(err);
         toast.error('Error fetching messages');
@@ -73,7 +75,7 @@ export default function PrivateChat() {
     };
 
     fetchExistingMessages();
-  }, [chatId, recipientId, authenticatedUser, requestMarkChatRead]);
+  }, [recipientId, authenticatedUser]);
 
   useEffect(() => {
     const setSockets = () => {
@@ -82,33 +84,33 @@ export default function PrivateChat() {
       socket.on('message', (message) => {
         if (message.chatId == chatId) {
           setMessages((prev) => [...prev, message]);
-          requestMarkChatRead();
         }
-
-        return () => {
-          socket.off('message');
-        };
       });
     };
+
     setSockets();
-  }, [chatId, requestMarkChatRead]);
+
+    return () => {
+      socket.off('message');
+    };
+  }, [chatId]);
 
   useEffect(() => {
     socket.on(`status-update-${recipient.id}`, (isOnline) => {
       setRecipient({ ...recipient, isOnline });
-
-      return () => {
-        socket.off(`status-update-${recipient.id}`);
-      };
     });
-  });
+
+    return () => {
+      socket.off(`status-update-${recipient.id}`);
+    };
+  }, [recipient]);
 
   const sendMessage = async (messageText, file) => {
     if (messageText.trim() || file) {
       try {
         let photoUrl;
 
-        if (file) {
+        if (file && validateFile(file)) {
           const filePath = `chat-photos/${authenticatedUser.id}-${Date.now()}`;
 
           const { data, error } = await supabase.storage

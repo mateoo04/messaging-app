@@ -8,6 +8,7 @@ import personSvg from '../../assets/icons/person-circle.svg';
 import globeSvg from '../../assets/icons/globe.svg';
 import imageSvg from '../../assets/icons/image.svg';
 import arrowLeftSvg from '../../assets/icons/arrow-left.svg';
+import { toast } from 'react-toastify';
 
 export default function Chat({
   messages,
@@ -26,6 +27,8 @@ export default function Chat({
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
+    if (!messagesEndRef.current) return;
+
     messagesEndRef.current?.scrollIntoView({ behavior: 'instant' });
   }, [messages]);
 
@@ -84,10 +87,13 @@ export default function Chat({
                   </p>
                 )}
                 {msg.imageUrl && (
-                  <img
-                    className='message-image rounded-3 mt-2 mb-2'
-                    src={msg.imageUrl}
-                  />
+                  <div className='message-image-container d-flex align-items-center justify-content-center'>
+                    <img
+                      className='message-image rounded-3 mt-2 mb-2'
+                      src={msg.imageUrl}
+                      onClick={() => window.open(msg.imageUrl, '_blank')}
+                    />
+                  </div>
                 )}
                 <p key={`text-${index}`} className='message-text'>
                   {msg.text}
@@ -111,9 +117,12 @@ export default function Chat({
         <form
           onSubmit={async (e) => {
             e.preventDefault();
-            await sendMessage(messageText, isAttachingFile ? file : null);
-            setMessageText('');
-            setIsAttachingFile(false);
+            if (!isAuthenticated) toast.error('Log in to send a message');
+            else {
+              await sendMessage(messageText, isAttachingFile ? file : null);
+              setMessageText('');
+              setIsAttachingFile(false);
+            }
           }}
           className='d-flex flex-column p-2 text-input-container'
         >
@@ -127,6 +136,7 @@ export default function Chat({
           />
           <div className='d-flex  align-items-center'>
             <textarea
+              name='message-text'
               value={messageText}
               onChange={(e) => setMessageText(e.target.value)}
               placeholder='Type a message...'
@@ -139,11 +149,7 @@ export default function Chat({
             >
               <img src={imageSvg} alt='' />
             </button>
-            <button
-              type='submit'
-              disabled={!isAuthenticated}
-              className='send-button align bg-primary'
-            >
+            <button type='submit' className='send-button align bg-primary'>
               <img src={sendIcon} className='send-icon' alt='' />
             </button>
           </div>

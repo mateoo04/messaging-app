@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import Cookies from 'js-cookie';
 import { toast } from 'react-toastify';
+import socket from '../utils/socket';
 
 const AuthContext = createContext();
 
@@ -57,6 +58,19 @@ export function AuthProvider({ children }) {
     };
 
     validateCredentials();
+  }, []);
+
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      socket.emit('disconnect');
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      socket.disconnect();
+    };
   }, []);
 
   return (

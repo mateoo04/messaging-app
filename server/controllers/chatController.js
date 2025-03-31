@@ -269,6 +269,22 @@ async function processGroupMessage(req, res, next) {
     if (!req.params.chatId)
       return res.status(400).json({ message: 'Chat id not provided' });
 
+    if (req.params.chatId === 'global-chat') {
+      const globalChat = await prisma.chat.findUnique({
+        where: {
+          id: 'global-chat',
+        },
+      });
+
+      if (!globalChat) {
+        await prisma.chat.create({
+          data: {
+            id: 'global-chat',
+          },
+        });
+      }
+    }
+
     const message = await saveMessage(req, res, req.params.chatId);
 
     events.emit('newMessage', { message, senderSocketId: req.body.socketId });
