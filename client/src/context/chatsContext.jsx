@@ -48,7 +48,7 @@ export function ChatsProvider({ children }) {
   useEffect(() => {
     let filteredMembers = [];
 
-    if (chats.length > 0) {
+    if (isAuthenticated && chats.length > 0) {
       socket.emit(
         'join rooms',
         chats.map((chat) => chat.id)
@@ -82,32 +82,33 @@ export function ChatsProvider({ children }) {
       });
     }
 
-    socket.on('message', (message) => {
-      let toBeMovedChatIndex;
+    if (isAuthenticated)
+      socket.on('message', (message) => {
+        let toBeMovedChatIndex;
 
-      let newChatsArray = chats.map((chat, index) => {
-        if (chat.id == message.chatId) {
-          toBeMovedChatIndex = index;
-          return { ...chat, messages: [message] };
-        } else return chat;
+        let newChatsArray = chats.map((chat, index) => {
+          if (chat.id == message.chatId) {
+            toBeMovedChatIndex = index;
+            return { ...chat, messages: [message], isUnread: true };
+          } else return chat;
+        });
+
+        let toBeMovedChat = newChatsArray.splice(toBeMovedChatIndex, 1)[0];
+        newChatsArray.unshift(toBeMovedChat);
+
+        setChats(newChatsArray);
+
+        return () => {
+          socket.off('message');
+        };
       });
-
-      let toBeMovedChat = newChatsArray.splice(toBeMovedChatIndex, 1)[0];
-      newChatsArray.unshift(toBeMovedChat);
-
-      setChats(newChatsArray);
-
-      return () => {
-        socket.off('message');
-      };
-    });
 
     return () => {
       filteredMembers.forEach((filteredMember) => {
         socket.off(`status-update-${filteredMember.id}`);
       });
     };
-  }, [chats, authenticatedUser.id]);
+  }, [chats, authenticatedUser.id, isAuthenticated]);
 
   const addSentMessage = (message) => {
     if (!chats.some((chat) => chat.id === message.chat.id)) {

@@ -21,6 +21,7 @@ async function respond(res, successStatusCode, user) {
   });
 
   await redis.sAdd('onlineUsers', user.id);
+
   events.emit('statusChange', { userId: user.id, isOnline: true });
 
   res.status(successStatusCode).json({
@@ -100,7 +101,11 @@ async function logIn(req, res, next) {
 }
 
 async function logOut(req, res, next) {
-  await redis.sRem('onlineUsers', req.user.id);
+  try {
+    await redis.sRem('onlineUsers', req.user.id);
+  } catch (error) {
+    console.error('Error removing a user from online users on Redis: ', error);
+  }
   events.emit('statusChange', { userId: req.user.id, isOnline: false });
   res.clearCookie('authToken', { httpOnly: true });
   res.clearCookie('authTokenExpiry', { httpOnly: true });

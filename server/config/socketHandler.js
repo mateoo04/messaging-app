@@ -1,6 +1,9 @@
 const redis = require('./redis');
 const cookie = require('cookie');
 const jwt = require('jsonwebtoken');
+const { PrismaClient } = require('@prisma/client');
+
+const prisma = new PrismaClient();
 
 const extractId = (cookies) => {
   if (cookies) {
@@ -26,7 +29,11 @@ module.exports = (io) => {
     const id = extractId(socket.handshake.headers.cookie);
 
     if (id) {
-      await redis.sAdd('onlineUsers', id);
+      try {
+        await redis.sAdd('onlineUsers', id);
+      } catch (error) {
+        console.error('Error getting online users from Redis: ', error);
+      }
     }
 
     socket.on('disconnect', async () => {
@@ -35,7 +42,14 @@ module.exports = (io) => {
       const id = extractId(socket.handshake.headers.cookie);
 
       if (id) {
-        await redis.sRem('onlineUsers', id);
+        try {
+          await redis.sRem('onlineUsers', id);
+        } catch (error) {
+          console.error(
+            'Error removing a user from online users on Redis: ',
+            error
+          );
+        }
       }
     });
 
@@ -49,6 +63,15 @@ module.exports = (io) => {
       if (!roomIds || !Array.isArray(roomIds) || roomIds.length === 0) return;
       await socket.join(roomIds);
       console.log(`Socket ${socket.id} joined rooms ${roomIds}`);
+    });
+
+    socket.on('mark chat read', async (chatId) => {
+      if (await prisma.chat.findUnique({ where: { id: chatId } })) {
+        await prisma.chat.update({
+          where: { id: chatId },
+          data: { isUnread: false },
+        });
+      }
     });
 
     socket.on('leave room', async (roomId) => {

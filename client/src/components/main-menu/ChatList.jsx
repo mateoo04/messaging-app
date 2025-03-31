@@ -3,7 +3,6 @@ import { useAuth } from '../../context/authContext';
 import { useChats } from '../../context/chatsContext';
 import {
   format,
-  isBefore,
   isThisYear,
   isToday,
   isWithinInterval,
@@ -30,7 +29,7 @@ export default function ChatList({ startUserSearch }) {
 
   return (
     <>
-      <h1 className='pb-3'>Chat</h1>
+      <h1 className='pb-3'>Chats</h1>
       {isAuthenticated && (
         <button
           className='btn border mb-2 bg-primary text-white rounded-5'
@@ -81,7 +80,14 @@ export default function ChatList({ startUserSearch }) {
                       {lastMessage?.time && formatTime(lastMessage.time)}
                     </p>
                   </div>
-                  <p className='text-secondary last-message'>
+                  <p
+                    className={`${
+                      chat.isUnread &&
+                      lastMessage.sender.id !== authenticatedUser.id
+                        ? 'color-black'
+                        : 'text-secondary'
+                    } last-message`}
+                  >
                     {`${
                       sender?.id === authenticatedUser.id
                         ? 'You'
@@ -89,6 +95,10 @@ export default function ChatList({ startUserSearch }) {
                     }: ${lastMessage?.text ? lastMessage?.text : 'Image sent'}`}
                   </p>
                 </div>
+                {chat.isUnread &&
+                  lastMessage.sender.id !== authenticatedUser.id && (
+                    <span className='unread-indicator'></span>
+                  )}
               </Link>
             </li>
           );

@@ -27,6 +27,7 @@ model Chat{
   id String @id @default(uuid())
   members User[]
   messages Message[]
+  isUnread Boolean @default(false)
 }
 
 model Message{

@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import socket from '../../utils/socket.js';
-import { useLocation, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import Chat from './Chat.jsx';
 import { toast } from 'react-toastify';
 import { useChats } from '../../context/chatsContext.jsx';
@@ -8,13 +8,28 @@ import { useAuth } from '../../context/authContext.jsx';
 import supabase from '../../utils/supabase.js';
 
 export default function PrivateChat() {
-  const { addSentMessage } = useChats();
+  const { addSentMessage, chats, setChats } = useChats();
   const { authenticatedUser } = useAuth();
   const { recipientId } = useParams();
 
   const [chatId, setChatId] = useState('');
   const [messages, setMessages] = useState([]);
   const [recipient, setRecipient] = useState({});
+
+  const requestMarkChatRead = useCallback(() => {
+    if (messages?.at(messages.length - 1)?.sender.id !== authenticatedUser.id) {
+      socket.emit('mark chat read', chatId);
+    }
+  }, [messages, authenticatedUser.id, chatId]);
+
+  useEffect(() => {
+    setChats((prevChats) =>
+      prevChats.map((chat) => {
+        if (chat.id === chatId) return { ...chat, isUnread: false };
+        return chat;
+      })
+    );
+  }, [chatId, setChats]);
 
   useEffect(() => {
     const fetchExistingMessages = async () => {
@@ -50,23 +65,33 @@ export default function PrivateChat() {
         setRecipient(
           json.members.find((member) => member.id !== authenticatedUser.id)
         );
-      } catch {
+        requestMarkChatRead();
+      } catch (err) {
+        console.error(err);
         toast.error('Error fetching messages');
       }
     };
 
     fetchExistingMessages();
+  }, [chatId, recipientId, authenticatedUser, requestMarkChatRead]);
 
-    socket.emit('join room', chatId);
+  useEffect(() => {
+    const setSockets = () => {
+      socket.emit('join room', chatId);
 
-    socket.on('message', (message) => {
-      if (message.chatId == chatId) setMessages((prev) => [...prev, message]);
+      socket.on('message', (message) => {
+        if (message.chatId == chatId) {
+          setMessages((prev) => [...prev, message]);
+          requestMarkChatRead();
+        }
 
-      return () => {
-        socket.off('message');
-      };
-    });
-  }, [chatId, recipientId, authenticatedUser]);
+        return () => {
+          socket.off('message');
+        };
+      });
+    };
+    setSockets();
+  }, [chatId, requestMarkChatRead]);
 
   useEffect(() => {
     socket.on(`status-update-${recipient.id}`, (isOnline) => {

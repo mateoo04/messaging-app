@@ -52,6 +52,7 @@ export default function NewChatSearch({ stopUserSearch }) {
             <Link
               to={`/chats/private/${user.id}`}
               className='text-decoration-none'
+              key={user.id + '-link'}
             >
               <li className='d-flex gap-2'>
                 <img

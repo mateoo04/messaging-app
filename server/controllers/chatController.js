@@ -207,6 +207,15 @@ async function saveMessage(req, res, chatId) {
     },
   });
 
+  await prisma.chat.update({
+    data: {
+      isUnread: true,
+    },
+    where: {
+      id: chatId,
+    },
+  });
+
   return message;
 }
 

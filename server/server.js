@@ -10,6 +10,7 @@ const { passport } = require('./config/passport');
 const indexRouter = require('./routes/indexRouter');
 const socketHandler = require('./config/socketHandler');
 const { events, setUpSocketEvents } = require('./config/events');
+const redis = require('./config/redis');
 
 const app = express();
 
@@ -34,6 +35,17 @@ app.use(
     credentials: true,
   })
 );
+
+async function clearOnlineUsers() {
+  try {
+    await redis.del('onlineUsers');
+    console.log('Cleared online users set from Redis.');
+  } catch (err) {
+    console.error('Error clearing online users set:', err);
+  }
+}
+
+clearOnlineUsers();
 
 socketHandler(io);
 setUpSocketEvents(io);

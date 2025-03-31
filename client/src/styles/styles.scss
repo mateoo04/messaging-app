@@ -79,3 +79,11 @@ input[type='submit']:hover {
 .offline {
   background-color: #a7a7a7;
 }
+
+.unread-indicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #447bc9;
+  margin-top: 15px;
+}
