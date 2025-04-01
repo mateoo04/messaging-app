@@ -33,16 +33,24 @@ export default function GroupChat() {
     };
 
     fetchExistingMessages();
+  }, [chatId]);
 
-    socket.emit('join room', chatId);
+  useEffect(() => {
+    const setSockets = () => {
+      socket.emit('join room', chatId);
 
-    socket.on('message', (message) => {
-      if (message.chatId == chatId) setMessages((prev) => [...prev, message]);
+      socket.on('message', (message) => {
+        if (message.chatId == chatId) {
+          setMessages((prev) => [...prev, message]);
+        }
+      });
+    };
 
-      return () => {
-        socket.off('message');
-      };
-    });
+    setSockets();
+
+    return () => {
+      socket.off('message');
+    };
   }, [chatId]);
 
   const sendMessage = async (messageText, file) => {

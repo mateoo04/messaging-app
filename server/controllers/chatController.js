@@ -251,6 +251,14 @@ async function processPrivateMessage(req, res, next) {
         chat,
       });
 
+      const onlineUsers = await redis.sMembers('onlineUsers');
+
+      message.chat.members = message.chat.members.map((member) => {
+        if (onlineUsers.includes(member.id))
+          return { ...member, isOnline: true };
+        return { ...member, isOnline: false };
+      });
+
       return res.status(201).json(message);
     } else {
       const message = await saveMessage(req, res, chatId);

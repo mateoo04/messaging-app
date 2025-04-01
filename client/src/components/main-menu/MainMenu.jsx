@@ -7,10 +7,10 @@ import threeDotsSvg from '../../assets/icons/three-dots.svg';
 import { useNavigate } from 'react-router-dom';
 import { useChats } from '../../context/chatsContext';
 
-const MainMenu = memo(function MainMenu() {
+const MainMenu = () => {
   const navigate = useNavigate();
   const { isAuthenticated, authenticatedUser, logOut } = useAuth();
-  const { setChats } = useChats();
+  const { chats, setChats } = useChats();
   const [isSearching, setIsSearching] = useState(false);
 
   return (
@@ -90,6 +90,6 @@ const MainMenu = memo(function MainMenu() {
       )}
     </div>
   );
-});
+};
 
 export default MainMenu;

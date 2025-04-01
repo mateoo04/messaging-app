@@ -2,6 +2,7 @@ const redis = require('./redis');
 const cookie = require('cookie');
 const jwt = require('jsonwebtoken');
 const { PrismaClient } = require('@prisma/client');
+const { events } = require('./events');
 
 const prisma = new PrismaClient();
 
@@ -51,6 +52,8 @@ module.exports = (io) => {
           );
         }
       }
+
+      events.emit('statusChange', { userId: id, isOnline: false });
     });
 
     socket.on('join room', async (roomId) => {

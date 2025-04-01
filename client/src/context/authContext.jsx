@@ -60,19 +60,6 @@ export function AuthProvider({ children }) {
     validateCredentials();
   }, []);
 
-  useEffect(() => {
-    const handleBeforeUnload = () => {
-      socket.emit('disconnect');
-    };
-
-    window.addEventListener('beforeunload', handleBeforeUnload);
-
-    return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-      socket.disconnect();
-    };
-  }, []);
-
   return (
     <AuthContext.Provider
       value={{
