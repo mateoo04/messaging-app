@@ -69,23 +69,25 @@ export function ChatsProvider({ children }) {
       }, []);
 
       filteredMembers.forEach((filteredMember) => {
-        const room = `is-online-${filteredMember.id}`;
-        socket.emit('join room', room);
+        if (filteredMember.id != null) {
+          const room = `is-online-${filteredMember.id}`;
+          socket.emit('join room', room);
 
-        socket.on(`status-update-${filteredMember.id}`, (isOnline) => {
-          setChats(
-            chats.map((chat) => {
-              return {
-                ...chat,
-                members: chat.members.map((member) => {
-                  if (member.id === filteredMember.id)
-                    return { ...member, isOnline };
-                  return member;
-                }),
-              };
-            })
-          );
-        });
+          socket.on(`status-update-${filteredMember.id}`, (isOnline) => {
+            setChats(
+              chats.map((chat) => {
+                return {
+                  ...chat,
+                  members: chat.members.map((member) => {
+                    if (member.id === filteredMember.id)
+                      return { ...member, isOnline };
+                    return member;
+                  }),
+                };
+              })
+            );
+          });
+        }
       });
     }
 

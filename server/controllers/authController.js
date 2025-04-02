@@ -12,12 +12,21 @@ async function respond(res, successStatusCode, user) {
 
   res.cookie('authToken', tokenObj.token, {
     httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    expires: tokenObj.expiresAt,
+    sameSite: 'Strict',
   });
   res.cookie('authTokenExpiry', tokenObj.expiresAt, {
     httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    expires: tokenObj.expiresAt,
+    sameSite: 'Strict',
   });
   res.cookie('username', user.username, {
     httpOnly: false,
+    secure: process.env.NODE_ENV === 'production',
+    expires: tokenObj.expiresAt,
+    sameSite: 'Strict',
   });
 
   await redis.sAdd('onlineUsers', user.id);

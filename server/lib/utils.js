@@ -2,12 +2,12 @@ const jwt = require('jsonwebtoken');
 
 function issueJWT(user) {
   const token = jwt.sign({ id: user.id }, process.env.SECRET, {
-    expiresIn: '1d',
+    expiresIn: '7d',
   });
 
   return {
     token: 'Bearer ' + token,
-    expiresAt: Date.now() + 24 * 60 * 60 * 1000,
+    expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
   };
 }
 

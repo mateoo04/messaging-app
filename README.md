@@ -26,6 +26,7 @@ A real-time messaging application that allows users to chat in the global and pr
 - Frontend: React, Vite
 - Backend: Node.js, Express, Socket.IO
 - Database: Prisma ORM (PostgreSQL)
+- Image storage: Supabase
 - Authentication: JWT (JSON Web Token)
 - Styling: CSS, Bootstrap
 
