@@ -15,11 +15,10 @@ A real-time messaging application that allows users to chat in the global and pr
 
 ## Features
 
-- Real-time messaging: Chat with other users in real time.
+- Real-time messaging: Chat with other users in real time using websockets (Socket.IO).
 - User authentication: Secure login and registration system.
 - Message history: View past messages within chats.
 - Responsive design: Fully responsive interface for mobile and desktop users.
-- Socket.IO: Real-time communication with websockets.
 
 ## Tech Stack
 
@@ -33,8 +32,8 @@ A real-time messaging application that allows users to chat in the global and pr
 ## Preview
 
 <p align="center">
-<img src="./screenshots/menu.png" width="360" style="margin-right: 14px;">
-<img src="./screenshots/chat.png" width="360">
+<kbd><img src="./screenshots/menu.png" width="360" style="margin-right: 14px;"></kbd>
+<kbd><img src="./screenshots/chat.png" width="360"></kbd>
 </p>
 
 ## Getting Started
@@ -84,18 +83,18 @@ Create a .env file in the server directory and define the necessary variables:
 ```
 DATABASE_URL=your_database_url
 SECRET=your_secret
-REDIS_HOST
-REDIS_PORT
-REDIS_USERNAME
-REDIS_PASSWORD
+REDIS_HOST=your_redis_host
+REDIS_PORT=your_redis_port
+REDIS_USERNAME=your_redis_username
+REDIS_PASSWORD=your_redis_password
 ```
 
 For the frontend, create a .env file in the client directory:
 
 ```
 VITE_API_BASE_URL=api_url
-VITE_SUPABASE_URL
-VITE_SUPABASE_API_KEY
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_API_KEY=your_supabase_api_key
 ```
 
 ## Running the Application

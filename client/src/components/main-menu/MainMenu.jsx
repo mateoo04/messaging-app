@@ -14,7 +14,7 @@ const MainMenu = () => {
   const [isSearching, setIsSearching] = useState(false);
 
   return (
-    <div className='d-flex flex-column pt-4 ps-3 pe-3 border-end'>
+    <div className='d-flex flex-column pt-4 ps-3 pe-3'>
       <div className='d-flex justify-content-between align-items-center ms-3 mb-3 ml-3'>
         <div className='d-flex gap-2 align-items-center'>
           <img
