@@ -3,7 +3,14 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/authContext.jsx';
 import MainMenu from '../main-menu/MainMenu.jsx';
 import sendIcon from '../../assets/icons/send.svg';
-import { format } from 'date-fns';
+import {
+  isToday,
+  format,
+  isYesterday,
+  isWithinInterval,
+  subDays,
+  isThisYear,
+} from 'date-fns';
 import personSvg from '../../assets/icons/person-circle.svg';
 import globeSvg from '../../assets/icons/globe.svg';
 import imageSvg from '../../assets/icons/image.svg';
@@ -31,6 +38,17 @@ export default function Chat({
 
     messagesEndRef.current?.scrollIntoView({ behavior: 'instant' });
   }, [messages]);
+
+  const formatDateTime = (time) => {
+    if (isToday(time)) return format(time, 'HH:mm');
+    else if (isYesterday(time)) return 'Yesterday ' + format(time, 'HH:mm');
+    else if (
+      isWithinInterval(time, { start: subDays(new Date(), 7), end: new Date() })
+    )
+      return format(time, 'EEEE HH:mm');
+    else if (isThisYear(time)) return format(time, 'dd.M. HH:mm');
+    else return format(time, 'dd.M.yyyy. HH:mm');
+  };
 
   return (
     <div className='d-flex h-100'>
@@ -100,7 +118,7 @@ export default function Chat({
                 </p>
               </div>
               <p className='p-1 align-self-bottom text-secondary time'>
-                {msg.time && format(msg.time, 'HH:mm')}
+                {msg.time && formatDateTime(msg.time)}
               </p>
             </div>
           ))}
