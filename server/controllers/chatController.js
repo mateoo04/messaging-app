@@ -40,14 +40,16 @@ async function getAllChats(req, res, next) {
 
     const onlineUsers = await redis.sMembers('onlineUsers');
 
-    chats = chats.map((chat) => {
-      const members = chat.members.map((member) => {
-        if (onlineUsers.includes(member.id))
-          return { ...member, isOnline: true };
-        return { ...member, isOnline: false };
+    chats = chats
+      .filter((chat) => chat.members.length > 1)
+      .map((chat) => {
+        const members = chat.members.map((member) => {
+          if (onlineUsers.includes(member.id))
+            return { ...member, isOnline: true };
+          return { ...member, isOnline: false };
+        });
+        return { ...chat, members };
       });
-      return { ...chat, members };
-    });
 
     chats.sort((a, b) => {
       return b.messages?.at(0)?.time - a.messages?.at(0)?.time;

@@ -52,6 +52,9 @@ export default function ChatList({ startUserSearch }) {
           const recipient = chat.members?.find(
             (member) => member.id != authenticatedUser.id
           );
+
+          if (!recipient || !recipient.id) return null;
+
           const lastMessage = chat.messages?.at(0);
           const sender = lastMessage?.sender;
 

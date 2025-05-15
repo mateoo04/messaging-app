@@ -22,6 +22,8 @@ app.use(passport.initialize());
 
 const server = http.createServer(app);
 const io = new Server(server, {
+  pingInterval: 1000,
+  pingTimeout: 2000,
   cors: {
     origin: process.env.FRONTEND_URL,
     methods: ['GET', 'POST'],
@@ -35,17 +37,6 @@ app.use(
     credentials: true,
   })
 );
-
-async function clearOnlineUsers() {
-  try {
-    await redis.del('onlineUsers');
-    console.log('Cleared online users set on Redis.');
-  } catch (err) {
-    console.error('Error clearing online users set:', err);
-  }
-}
-
-clearOnlineUsers();
 
 socketHandler(io);
 setUpSocketEvents(io);

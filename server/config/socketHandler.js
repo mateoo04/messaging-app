@@ -7,19 +7,22 @@ const { events } = require('./events');
 const prisma = new PrismaClient();
 
 const extractId = (cookies) => {
-  if (cookies) {
-    const parsedCookies = cookie.parse(cookies);
-    const authToken = parsedCookies.authToken;
-    const authTokenExpiry = parsedCookies.authTokenExpiry;
+  try {
+    if (cookies) {
+      const parsedCookies = cookie.parse(cookies);
+      const authToken = parsedCookies.authToken;
 
-    if (authToken && authTokenExpiry && authTokenExpiry > Date.now()) {
-      const decoded = jwt.verify(
-        authToken.replace('Bearer ', ''),
-        process.env.SECRET
-      );
+      if (authToken) {
+        const decoded = jwt.verify(
+          authToken.replace('Bearer ', ''),
+          process.env.SECRET
+        );
 
-      return decoded.id;
+        return decoded.id;
+      }
     }
+  } catch {
+    console.error('Error extracting ID from cookies');
   }
 };
 
@@ -30,6 +33,8 @@ module.exports = (io) => {
     const id = extractId(socket.handshake.headers.cookie);
 
     if (id) {
+      socket.userId = id;
+
       try {
         await redis.sAdd('onlineUsers', id);
       } catch (error) {
@@ -42,9 +47,9 @@ module.exports = (io) => {
 
       const id = extractId(socket.handshake.headers.cookie);
 
-      if (id) {
+      if (socket.userId) {
         try {
-          await redis.sRem('onlineUsers', id);
+          await redis.sRem('onlineUsers', socket.userId);
         } catch (error) {
           console.error(
             'Error removing a user from online users on Redis: ',

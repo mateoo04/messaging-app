@@ -1,11 +1,10 @@
 const { createClient } = require('redis');
 
 const redis = createClient({
-  username: process.env.REDIS_USERNAME,
-  password: process.env.REDIS_PASSWORD,
+  url: process.env.UPSTASH_REDIS_URL,
   socket: {
-    host: process.env.REDIS_HOST,
-    port: process.env.REDIS_PORT,
+    tls: true,
+    rejectUnauthorized: false,
   },
 });
 
@@ -15,6 +14,9 @@ async function connectRedis() {
   try {
     await redis.connect();
     console.log('Connected to Redis');
+
+    await redis.del('onlineUsers');
+    console.log('Cleared online users set on Redis.');
   } catch (err) {
     console.error('Error connecting to Redis:', error);
   }

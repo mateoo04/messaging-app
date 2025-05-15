@@ -51,7 +51,7 @@ export default function EditProfile() {
             `/api/users/update?profilePhotoUrl=${profilePhotoUrlData.publicUrl}`
           );
       }
-    } catch (error) {
+    } catch {
       toast.error('Error saving the profile photo');
     }
   };

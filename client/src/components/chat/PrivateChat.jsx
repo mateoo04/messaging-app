@@ -1,4 +1,4 @@
-import { use, useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import socket from '../../utils/socket.js';
 import { useParams } from 'react-router-dom';
 import Chat from './Chat.jsx';
@@ -9,7 +9,7 @@ import supabase from '../../utils/supabase.js';
 import { validateFile } from '../../utils/fileValidation.js';
 
 export default function PrivateChat() {
-  const { addSentMessage, setChats } = useChats();
+  const { addSentMessage, chats, setChats } = useChats();
   const { authenticatedUser } = useAuth();
   const { recipientId } = useParams();
 
@@ -96,14 +96,14 @@ export default function PrivateChat() {
   }, [chatId]);
 
   useEffect(() => {
-    socket.on(`status-update-${recipient.id}`, (isOnline) => {
-      setRecipient({ ...recipient, isOnline });
-    });
+    const newestStatus = chats
+      .flatMap((chat) => chat.members)
+      .find((member) => member.id === recipient.id)?.isOnline;
 
-    return () => {
-      socket.off(`status-update-${recipient.id}`);
-    };
-  }, [recipient]);
+    if (newestStatus !== recipient.isOnline) {
+      setRecipient((prev) => ({ ...prev, isOnline: newestStatus }));
+    }
+  }, [chats, recipient.id, recipient.isOnline]);
 
   const sendMessage = async (messageText, file) => {
     if (messageText.trim() || file) {

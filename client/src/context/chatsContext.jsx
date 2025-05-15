@@ -74,8 +74,8 @@ export function ChatsProvider({ children }) {
           socket.emit('join room', room);
 
           socket.on(`status-update-${filteredMember.id}`, (isOnline) => {
-            setChats(
-              chats.map((chat) => {
+            setChats((prevCHats) =>
+              prevCHats.map((chat) => {
                 return {
                   ...chat,
                   members: chat.members.map((member) => {
