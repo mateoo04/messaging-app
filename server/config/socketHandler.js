@@ -30,9 +30,7 @@ module.exports = (io) => {
   io.on('connection', async (socket) => {
     console.log('A user connected:', socket.id);
 
-    const id = extractId(socket.handshake.headers.cookie);
-
-    if (id) {
+    if (socket.userId) {
       socket.userId = id;
 
       try {

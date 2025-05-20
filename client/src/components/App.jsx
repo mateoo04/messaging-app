@@ -13,19 +13,33 @@ import PrivateChat from './chat/PrivateChat.jsx';
 import { ChatsProvider } from '../context/chatsContext.jsx';
 import EditProfile from './EditProfile.jsx';
 import MainMenu from './main-menu/MainMenu.jsx';
+import ErrorPage from './ErrorPage.jsx';
 
 const router = createBrowserRouter([
-  { path: '/', element: <Navigate to='/chats/group/global-chat' /> },
-  { path: '/menu', element: <MainMenu /> },
-  { path: '/chats/group/:chatId', element: <GroupChat /> },
-  { path: '/chats/private/:recipientId', element: <PrivateChat /> },
+  {
+    path: '/',
+    element: <Navigate to='/chats/group/global-chat' />,
+    errorElement: <ErrorPage />,
+  },
+  { path: '/menu', element: <MainMenu />, errorElement: <ErrorPage /> },
+  {
+    path: '/chats/group/:chatId',
+    element: <GroupChat />,
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: '/chats/private/:recipientId',
+    element: <PrivateChat />,
+    errorElement: <ErrorPage />,
+  },
   {
     path: '/log-in',
     element: <LogIn />,
+    errorElement: <ErrorPage />,
   },
-  { path: '/sign-up', element: <SignUp /> },
+  { path: '/sign-up', element: <SignUp />, errorElement: <ErrorPage /> },
   { path: '/edit-profile', element: <EditProfile /> },
-  { path: '*', element: <NotFound /> },
+  { path: '*', element: <NotFound />, errorElement: <ErrorPage /> },
 ]);
 
 function App() {
